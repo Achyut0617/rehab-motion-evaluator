@@ -23,7 +23,7 @@ mediapipe>=0.10.14
 ultralytics>=8.2.0
 
 # Environment variable loading (.env)
-python-dotenv>=1.0.0
+python-dotenv>=1.2.4
 
 # Testing
 pytest>=8.0.0
