@@ -1,0 +1,41 @@
+name: Bug report
+description: Something isn't working as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Set POSE_BACKEND=yolo\n2. Start knee_extension\n3. ..."
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Jetson Orin Nano
+        - Other Jetson
+        - Linux x86_64
+        - Windows
+        - macOS
+    validations:
+      required: true
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Pose backend
+      options: [mediapipe, yolo (PyTorch), yolo (TensorRT), demo]
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / output
+      description: Paste terminal output. Remove any API keys or patient information.
+      render: shell
