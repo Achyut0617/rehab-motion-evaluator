@@ -1,6 +1,6 @@
 # Development & CI tooling (no GPU / ML runtime needed)
 #   pip install -r requirements-dev.txt
-Flask>=3.0.0,<4.0.0
+Flask>=3.1.3,<4.0.0
 numpy>=1.24.0,<2.0.0
 opencv-python-headless>=4.8.0,<4.12.0
 python-dotenv>=1.0.0
