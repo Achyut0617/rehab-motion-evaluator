@@ -21,6 +21,7 @@ Issues = "https://github.com/Achyut0617/rehab-motion-evaluator/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 addopts = "-ra"
 
 [tool.ruff]
