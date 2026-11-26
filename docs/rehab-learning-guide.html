@@ -1,0 +1,1415 @@
+<title>Rehab Motion Evaluator Field Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky instrument-bar nav over a single reading column; each view is a chapter. Goniometer motif: angles, arcs, degrees. */
+:root {
+  --bg: #f4f7f6; --surface: #ffffff; --surface-2: #e9f0ee; --line: #cfdcd8;
+  --fg: #12211e; --muted: #56706a; --accent: #0f7b6c; --accent-2: #d9822b;
+  --good: #1f8a4c; --warn: #b7791f; --bad: #c0392b; --code-bg: #0f1c1a; --code-fg: #d7efe9;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c1513; --surface: #12201d; --surface-2: #182a26; --line: #27403a;
+  --fg: #e4f1ed; --muted: #8fb0a8; --accent: #3cc7ae; --accent-2: #f0a35a;
+  --good: #4ccf83; --warn: #e5b24a; --bad: #ef6b5b; --code-bg: #07100e; --code-fg: #cdeee6; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0c1513; --surface: #12201d; --surface-2: #182a26; --line: #27403a;
+  --fg: #e4f1ed; --muted: #8fb0a8; --accent: #3cc7ae; --accent-2: #f0a35a;
+  --good: #4ccf83; --warn: #e5b24a; --bad: #ef6b5b; --code-bg: #07100e; --code-fg: #cdeee6; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15.5px; line-height: 1.6; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+a { color: var(--accent); }
+h1, h2, h3, h4 { font-family: var(--f-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h2 { font-size: 1.75rem; } h3 { font-size: 1.2rem; } h4 { font-size: 1rem; }
+p { margin: 0; max-width: 72ch; }
+code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
+:not(pre) > code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+pre { background: var(--code-bg); color: var(--code-fg); padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-size: 0.82rem; line-height: 1.5; margin: 0; }
+pre.mermaid { background: var(--surface); color: var(--fg); border: 1px solid var(--line); }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* header + nav */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 18px; padding-block: 10px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-weight: 700; }
+.brand svg { flex: none; }
+nav.tabs { display: flex; gap: 4px; overflow-x: auto; flex: 1; min-width: 0; scrollbar-width: thin; }
+nav.tabs a { text-decoration: none; color: var(--muted); padding: 6px 11px; border-radius: 6px; white-space: nowrap; font-size: 0.9rem; font-weight: 500; }
+nav.tabs a[aria-current="page"] { background: var(--accent); color: var(--surface); }
+nav.tabs a:hover:not([aria-current="page"]) { background: var(--surface-2); color: var(--fg); }
+
+/* hero */
+.hero { padding-block: 34px 26px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 28px; align-items: center; }
+.hero h1 { font-size: clamp(1.9rem, 4vw, 2.8rem); }
+.hero p.lead { color: var(--muted); margin-top: 12px; font-size: 1.05rem; }
+.eyebrow { text-transform: uppercase; letter-spacing: 0.09em; font-size: 0.74rem; font-weight: 600; color: var(--accent); margin-bottom: 8px; display: block; }
+.stats { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 18px; }
+.stats div { display: grid; }
+.stats b { font-family: var(--f-display); font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.stats span { color: var(--muted); font-size: 0.82rem; }
+
+main section.view { padding-block: 10px 60px; display: grid; gap: 26px; }
+.view-head { display: grid; gap: 8px; padding-top: 18px; }
+.view-head p { color: var(--muted); }
+
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 10px; min-width: 0; align-content: start; }
+.panel h3 { font-size: 1.05rem; }
+.muted { color: var(--muted); }
+.small { font-size: 0.85rem; }
+.ref { font-family: var(--f-mono); font-size: 0.78rem; color: var(--accent); background: var(--surface-2); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+.chip { display: inline-block; font-size: 0.74rem; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
+.callout { border-left: 3px solid var(--accent-2); background: var(--surface-2); padding: 12px 14px; border-radius: 0 8px 8px 0; }
+
+/* concept cards */
+.concept { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 12px; }
+.concept .num { font-family: var(--f-display); font-weight: 700; color: var(--accent); font-size: 1.3rem; }
+
+/* study plan */
+.plan li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+.plan ul { list-style: none; margin: 0; padding: 0; }
+.plan input { margin-top: 5px; accent-color: var(--accent); }
+.bar { height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+
+/* pipeline */
+.pipe { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.stage { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 4px; color: var(--fg); position: relative; }
+.stage .n { font-family: var(--f-mono); font-size: 0.72rem; color: var(--muted); }
+.stage b { font-family: var(--f-display); font-size: 0.98rem; }
+.stage small { color: var(--muted); font-size: 0.76rem; }
+.stage[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+.stage:hover { border-color: var(--accent); }
+.detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.kv { display: grid; grid-template-columns: 110px minmax(0,1fr); gap: 6px 12px; font-size: 0.92rem; }
+.kv dt { color: var(--muted); font-weight: 500; }
+.kv dd { margin: 0; min-width: 0; }
+
+/* stepper */
+.stepper-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 7px 14px; border-radius: 7px; font-weight: 500; }
+.btn.primary { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: default; }
+.dots { display: flex; gap: 5px; flex-wrap: wrap; }
+.dots button { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); font-size: 0.72rem; font-family: var(--f-mono); color: var(--muted); padding: 0; }
+.dots button.on { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+
+/* labs */
+.lab { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+canvas { width: 100%; max-width: 100%; border-radius: 8px; background: var(--surface-2); touch-action: none; display: block; }
+.readout { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+.readout div { background: var(--surface-2); border-radius: 8px; padding: 8px 10px; }
+.readout b { display: block; font-family: var(--f-display); font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.readout span { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+label.ctl { display: grid; gap: 2px; font-size: 0.85rem; color: var(--muted); }
+label.ctl input[type=range] { width: 100%; accent-color: var(--accent); }
+.ctls { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px 16px; }
+.states { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.state { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line); font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); }
+.state.on { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.feedback { padding: 10px 12px; border-radius: 8px; font-weight: 500; border: 1px solid var(--line); }
+.fb-good { border-color: var(--good); color: var(--good); }
+.fb-warning { border-color: var(--warn); color: var(--warn); }
+.fb-caution { border-color: var(--bad); color: var(--bad); }
+
+/* problems */
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filters button { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 99px; padding: 4px 12px; font-size: 0.82rem; }
+.filters button.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.search { width: 100%; max-width: 360px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; }
+.prob { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.prob summary { list-style: none; cursor: pointer; padding: 12px 14px; display: grid; grid-template-columns: 38px minmax(0,1fr) auto; gap: 10px; align-items: center; }
+.prob summary::-webkit-details-marker { display: none; }
+.prob summary .id { font-family: var(--f-mono); color: var(--muted); font-size: 0.8rem; }
+.prob summary b { font-weight: 600; }
+.prob[open] summary { border-bottom: 1px solid var(--line); }
+.prob .body { padding: 12px 14px 14px 62px; display: grid; gap: 8px; }
+.prob .row { display: grid; grid-template-columns: 92px minmax(0,1fr); gap: 10px; font-size: 0.92rem; }
+.prob .row > span:first-child { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: .05em; padding-top: 3px; }
+.problist { display: grid; gap: 8px; }
+
+/* files */
+.files { display: grid; gap: 8px; }
+.file summary { cursor: pointer; padding: 11px 14px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.file { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.file summary code { font-weight: 600; color: var(--accent); background: none; padding: 0; }
+.file .body { padding: 0 14px 14px; display: grid; gap: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: .05em; }
+td { font-variant-numeric: tabular-nums; }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+
+/* output mock */
+.mock { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #0f172a; color: #e2e8f0; font-size: 0.78rem; }
+.mock .mbar { background: #1e293b; padding: 8px 10px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.mock .pill { background: #334155; border-radius: 99px; padding: 2px 8px; }
+.mock .pill.ok { background: #14532d; color: #bbf7d0; }
+.mock .mgrid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px; padding: 8px; }
+.mock .box { background: #1e293b; border-radius: 6px; padding: 8px; position: relative; min-height: 60px; }
+.mock .vid { background: linear-gradient(160deg, #1e293b, #0b1220); min-height: 170px; }
+.mock .hot { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-2); color: #111; font-weight: 700; display: grid; place-items: center; border: 2px solid #fff; padding: 0; font-size: 0.75rem; }
+.mock .kp { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 6px; }
+.mock .kp div { background: #0b1220; border-radius: 4px; padding: 4px; text-align: center; }
+.mock .fb { margin-top: 6px; background: #14532d; color: #bbf7d0; padding: 5px 8px; border-radius: 4px; }
+.annot { display: grid; gap: 6px; }
+.annot button { text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 8px; padding: 8px 10px; display: grid; grid-template-columns: 26px minmax(0,1fr); gap: 8px; }
+.annot button.on { border-color: var(--accent-2); box-shadow: 0 0 0 1px var(--accent-2) inset; }
+.annot .k { width: 22px; height: 22px; border-radius: 50%; background: var(--accent-2); color: #111; font-weight: 700; display: grid; place-items: center; font-size: 0.75rem; }
+
+.tabs-inline { display: flex; gap: 4px; flex-wrap: wrap; }
+.tabs-inline button { border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; }
+.tabs-inline button.on { color: var(--fg); border-color: var(--accent); background: var(--surface-2); }
+
+footer { border-top: 1px solid var(--line); padding-block: 22px 40px; color: var(--muted); font-size: 0.85rem; }
+
+@media (max-width: 820px) {
+  .hero, .grid2, .detail, .lab { grid-template-columns: minmax(0, 1fr); }
+  .grid3 { grid-template-columns: minmax(0, 1fr); }
+  .ctls, .readout { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .prob .body { padding-left: 14px; }
+  .prob .row { grid-template-columns: minmax(0,1fr); gap: 2px; }
+  .mock .mgrid { grid-template-columns: minmax(0,1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M4 22 A 12 12 0 0 1 24 22" fill="none" stroke="var(--accent)" stroke-width="2.5"/><line x1="14" y1="22" x2="5" y2="10" stroke="var(--fg)" stroke-width="2.5" stroke-linecap="round"/><line x1="14" y1="22" x2="25" y2="22" stroke="var(--accent-2)" stroke-width="2.5" stroke-linecap="round"/><circle cx="14" cy="22" r="2.6" fill="var(--fg)"/></svg>
+      <span>Rehab Motion Evaluator</span>
+    </div>
+    <nav class="tabs" aria-label="Chapters">
+      <a href="#basics">Basics</a>
+      <a href="#flow">Data Flow</a>
+      <a href="#journey">One Frame</a>
+      <a href="#labs">Labs</a>
+      <a href="#problems">Problems → Fixes</a>
+      <a href="#files">Code Map</a>
+      <a href="#output">Output</a>
+      <a href="#edge">Edge &amp; Hardware</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============================================================ BASICS -->
+<section class="view" data-view="basics">
+  <div class="hero">
+    <div>
+      <span class="eyebrow">Learning guide · B.Tech final-year project</span>
+      <h1>How a camera turns knee bends into rep counts, feedback and AI reports</h1>
+      <p class="lead">This guide walks the whole project from zero: what each idea means, how one video frame travels through every file, which problem each piece of code solves, and what you finally see on screen. The last chapter covers running it on an NVIDIA Jetson at the edge.</p>
+      <div class="stats">
+        <div><b>11</b><span>Python modules</span></div>
+        <div><b>~3,800</b><span>lines of code</span></div>
+        <div><b>22</b><span>API routes</span></div>
+        <div><b>3</b><span>exercises · 3 languages</span></div>
+        <div><b>12</b><span>tests passing</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>The whole system in one sentence per box</h3>
+      <pre class="mermaid">
+flowchart LR
+  A[Phone / USB camera] --> B[Pose model<br/>finds 12 joints]
+  B --> C[Angle maths<br/>3 points to degrees]
+  C --> D[Rep counter<br/>state machine]
+  D --> E[Rule feedback<br/>+ score]
+  E --> F[Flask server]
+  F --> G[Browser dashboard<br/>video, charts, voice]
+  E --> H[(SQLite)]
+  H --> I[Progress + Gemini<br/>AI report]
+      </pre>
+    </div>
+  </div>
+
+  <div class="view-head">
+    <span class="eyebrow">Chapter 1</span>
+    <h2>Basic ideas, from the ground up</h2>
+    <p>Read these in order. Every later chapter assumes only these twelve ideas.</p>
+  </div>
+
+  <div class="grid2" id="concepts"></div>
+
+  <div class="panel plan">
+    <h3>Your study plan</h3>
+    <p class="muted small">Tick items as you finish them. Progress is saved in this browser only.</p>
+    <div class="bar" aria-hidden="true"><i id="planbar"></i></div>
+    <ul id="planlist"></ul>
+  </div>
+</section>
+
+<!-- ============================================================ FLOW -->
+<section class="view" data-view="flow" hidden>
+  <div class="view-head">
+    <span class="eyebrow">Chapter 2</span>
+    <h2>The data flow, stage by stage</h2>
+    <p>Eleven stages, each owned by one file. Click a stage to see what goes in, what comes out, the exact code, and the problem that stage exists to solve.</p>
+  </div>
+  <div class="pipe" id="pipe" role="group" aria-label="Pipeline stages"></div>
+  <div class="panel" id="stageDetail" aria-live="polite"></div>
+
+  <div class="panel">
+    <h3>Threads: who runs what, at the same time</h3>
+    <p class="muted small">Three kinds of threads share data. A single <code>threading.Lock</code> in <span class="ref">src/pipeline.py:64</span> stops them reading half-written values.</p>
+    <pre class="mermaid">
+sequenceDiagram
+  participant Cam as Camera thread<br/>camera.py:135
+  participant Proc as Processing thread<br/>pipeline.py:335
+  participant Web as Flask request threads<br/>app.py
+  participant UI as Browser
+  loop ~30 times per second
+    Cam->>Cam: cap.read() newest frame
+  end
+  loop every frame
+    Proc->>Cam: read() copy of latest frame
+    Proc->>Proc: pose, angles, reps, feedback
+    Proc->>Proc: lock, save telemetry + JPEG
+  end
+  UI->>Web: GET /api/telemetry (every 250 ms)
+  Web->>Proc: get_telemetry() under lock
+  Web-->>UI: JSON
+  UI->>Web: GET /video_feed (once, stays open)
+  Web-->>UI: JPEG, JPEG, JPEG ... (MJPEG)
+    </pre>
+  </div>
+
+  <div class="panel">
+    <h3>Session lifecycle</h3>
+    <pre class="mermaid">
+sequenceDiagram
+  actor Physio
+  participant UI as Dashboard (coach.js)
+  participant API as app.py
+  participant P as RehabPipeline
+  participant DB as SQLite
+  participant G as Gemini API
+  Physio->>UI: pick patient
+  UI->>API: POST /api/patient/select
+  API->>P: set_patient() applies side + personal target
+  Physio->>UI: Start Session
+  UI->>API: POST /api/session/start
+  Note over P: frames logged at 10 Hz,<br/>reps analysed live
+  Physio->>UI: Stop and Save
+  UI->>API: POST /api/session/stop
+  API->>P: stop_session()
+  P->>DB: INSERT sessions + session_frames + rep_details
+  UI->>API: POST /api/sessions/ID/report
+  API->>P: build_session_context() (no name, no video)
+  API->>G: metrics JSON + safety prompt
+  G-->>API: patient summary (hi/mr/en) + clinician notes
+  API->>DB: cache ai_report
+  API-->>UI: report dialog + read aloud
+    </pre>
+  </div>
+</section>
+
+<!-- ============================================================ JOURNEY -->
+<section class="view" data-view="journey" hidden>
+  <div class="view-head">
+    <span class="eyebrow">Chapter 3</span>
+    <h2>Follow one frame from camera to screen</h2>
+    <p>One loop of <code>_process_loop</code> takes roughly 20 to 60 ms. Step through it and watch the data change shape at every hop. The values are a real-looking example of a knee extension, right side.</p>
+  </div>
+  <div class="panel">
+    <div class="stepper-controls">
+      <button class="btn" id="jPrev">← Back</button>
+      <button class="btn primary" id="jNext">Next step →</button>
+      <div class="dots" id="jDots"></div>
+    </div>
+    <div class="detail" id="jBody"></div>
+  </div>
+</section>
+
+<!-- ============================================================ LABS -->
+<section class="view" data-view="labs" hidden>
+  <div class="view-head">
+    <span class="eyebrow">Chapter 4</span>
+    <h2>Labs: play with the real algorithms</h2>
+    <p>Both labs run the same maths as the Python code, rewritten in JavaScript, so you can feel what each number does.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Lab A · Joint angle from three points</h3>
+    <p class="muted small">Drag the hip, knee or ankle. This is <code>compute_angle_3pts</code> in <span class="ref">src/angle_calculator.py:22</span>. Turn on noise to see why the code smooths angles with an exponential moving average.</p>
+    <div class="lab">
+      <canvas id="angleCanvas" width="560" height="380" aria-label="Draggable hip, knee and ankle points"></canvas>
+      <div style="display:grid;gap:12px">
+        <div class="readout">
+          <div><span>Raw angle</span><b id="aRaw">--</b></div>
+          <div><span>Smoothed (EMA)</span><b id="aEma">--</b></div>
+        </div>
+        <pre id="aMath"></pre>
+        <div class="ctls">
+          <label class="ctl">Keypoint noise (px): <b id="noiseV">0</b><input type="range" id="noise" min="0" max="20" value="0"></label>
+          <label class="ctl">EMA alpha: <b id="alphaV">0.35</b><input type="range" id="alpha" min="0.05" max="1" step="0.05" value="0.35"></label>
+        </div>
+        <p class="small muted">Alpha 1.0 means no smoothing (jittery). Small alpha is smooth but lags behind real movement. The project uses 0.35 as a balance.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Lab B · The rep-counting state machine</h3>
+    <p class="muted small">A simulated patient does knee extensions. This is <code>ExerciseTracker.update</code> in <span class="ref">src/exercise_tracker.py:172</span> plus the rules in <span class="ref">src/evaluator.py:47</span>. Change the thresholds and watch how reps are counted, missed or blocked.</p>
+    <div class="lab">
+      <div style="display:grid;gap:10px">
+        <canvas id="repCanvas" width="560" height="260" aria-label="Knee angle over time with thresholds"></canvas>
+        <div class="states" id="repStates">
+          <span class="state" data-s="ready">ready</span><span>→</span>
+          <span class="state" data-s="in_progress">in_progress</span><span>→</span>
+          <span class="state" data-s="target_reached">target_reached</span><span>→ rep +1</span>
+        </div>
+        <div class="feedback" id="repFb">Ready</div>
+      </div>
+      <div style="display:grid;gap:12px">
+        <div class="readout">
+          <div><span>Reps</span><b id="rReps">0</b></div>
+          <div><span>Angle</span><b id="rAngle">--</b></div>
+          <div><span>Speed °/s</span><b id="rVel">--</b></div>
+          <div><span>Score</span><b id="rScore">--</b></div>
+        </div>
+        <div class="ctls">
+          <label class="ctl">Start threshold: <b id="stV">105</b>°<input type="range" id="st" min="80" max="140" value="105"></label>
+          <label class="ctl">Target threshold: <b id="tgV">160</b>°<input type="range" id="tg" min="130" max="178" value="160"></label>
+          <label class="ctl">Patient's best reach: <b id="reachV">170</b>°<input type="range" id="reach" min="130" max="178" value="170"></label>
+          <label class="ctl">Patient speed: <b id="spdV">1.0</b>×<input type="range" id="spd" min="0.5" max="3" step="0.1" value="1"></label>
+          <label class="ctl">Cooldown: <b id="cdV">0.8</b> s<input type="range" id="cd" min="0" max="3" step="0.1" value="0.8"></label>
+          <label class="ctl">Max safe speed: <b id="mvV">180</b>°/s<input type="range" id="mv" min="60" max="400" step="10" value="180"></label>
+        </div>
+        <div class="stepper-controls"><button class="btn primary" id="repPlay">Pause</button><button class="btn" id="repReset">Reset</button></div>
+        <p class="small muted">Try: set the best reach below the target, and reps stop counting with "Try extending your knee further". Raise the speed to 2.5×, and the too-fast warning appears and the score drops.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ PROBLEMS -->
+<section class="view" data-view="problems" hidden>
+  <div class="view-head">
+    <span class="eyebrow">Chapter 5</span>
+    <h2>Every small problem, and how the code solves it</h2>
+    <p>Each card names the problem, what you would see in the output if it were not solved, the fix, and the file and line where the fix lives.</p>
+  </div>
+  <div class="stepper-controls">
+    <input class="search" id="probSearch" type="search" placeholder="Search problems, files, words…" aria-label="Search problems">
+    <div class="filters" id="probFilters"></div>
+  </div>
+  <p class="small muted" id="probCount"></p>
+  <div class="problist" id="probList"></div>
+</section>
+
+<!-- ============================================================ FILES -->
+<section class="view" data-view="files" hidden>
+  <div class="view-head">
+    <span class="eyebrow">Chapter 6</span>
+    <h2>Code map: every file and its key functions</h2>
+    <p>Open a file to see what it is responsible for, its important functions with line numbers, and which other files talk to it.</p>
+  </div>
+  <div class="files" id="fileList"></div>
+
+  <div class="panel">
+    <h3>Database tables (SQLite, <code>data/rehab_sessions.db</code>)</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Table</th><th>One row is…</th><th>Important columns</th><th>Written by</th></tr></thead>
+      <tbody>
+        <tr><td><code>patients</code></td><td>a patient profile</td><td>name, age, condition, affected_side, language, notes, <code>threshold_overrides</code> (JSON)</td><td><span class="ref">session_manager.py:118</span></td></tr>
+        <tr><td><code>sessions</code></td><td>one saved exercise session</td><td>exercise_key, side, total_reps, duration, min/max angle, consistency_score, <code>patient_id</code>, <code>rep_details</code> (JSON), <code>ai_report</code> (JSON cache)</td><td><span class="ref">session_manager.py:204</span></td></tr>
+        <tr><td><code>session_frames</code></td><td>one telemetry sample (10 per second)</td><td>elapsed_s, stage, primary/secondary/left/right angle, angular_velocity, reps, score, feedback</td><td><span class="ref">session_manager.py:204</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="panel">
+    <h3>All API routes</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Method</th><th>Route</th><th>What it does</th><th>Code</th></tr></thead>
+      <tbody id="apiRows"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ============================================================ OUTPUT -->
+<section class="view" data-view="output" hidden>
+  <div class="view-head">
+    <span class="eyebrow">Chapter 7</span>
+    <h2>What you see at the end, and where each piece comes from</h2>
+    <p>Click a numbered marker or a list item. Each part of the dashboard is traced back to the stage that produced it.</p>
+  </div>
+  <div class="grid2">
+    <div class="mock" aria-label="Dashboard mock-up">
+      <div class="mbar">
+        <b style="margin-right:auto">Rehab Motion Evaluator</b>
+        <span class="pill">Backend: mediapipe</span><span class="pill">Angles: 3D</span><span class="pill">FPS: 24.8</span><span class="pill ok">Camera: Connected</span>
+      </div>
+      <div class="mgrid">
+        <div class="box vid">
+          <div>Knee Extension (right) | Reps: 6 | Score: 89%</div>
+          <svg viewBox="0 0 200 130" style="width:100%;max-width:100%" aria-hidden="true">
+            <g stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none"><line x1="100" y1="20" x2="100" y2="60"/><line x1="100" y1="60" x2="70" y2="95"/><line x1="70" y1="95" x2="125" y2="100"/></g>
+            <g fill="#facc15"><circle cx="100" cy="60" r="4"/><circle cx="70" cy="95" r="4"/><circle cx="125" cy="100" r="4"/></g>
+            <text x="78" y="88" fill="#facc15" font-size="9">142 deg</text>
+          </svg>
+          <div class="fb">Keep straightening your knee smoothly</div>
+        </div>
+        <div class="box">
+          <div>Exercise Monitor</div>
+          <div class="kp"><div>Reps<br><b>6</b></div><div>Angle<br><b>142°</b></div><div>Score<br><b>89%</b></div><div>Min<br><b>94°</b></div><div>Max<br><b>171°</b></div><div>Time<br><b>48s</b></div></div>
+          <div style="margin-top:6px;opacity:.8">Last rep #6: ROM 76° · 3.4 s · 92°/s</div>
+          <div style="margin-top:4px;opacity:.8">Target 165° (personalized)</div>
+        </div>
+        <div class="box" style="min-height:70px">Live angle chart ∿∿∿</div>
+        <div class="box" style="min-height:70px">Patient progress + 💡 suggestion</div>
+        <div class="box" style="grid-column:1/-1">Session table · Rep Quality · CSV · ✨ AI Report</div>
+      </div>
+    </div>
+    <div class="annot" id="annot"></div>
+  </div>
+  <div class="panel" id="annotDetail" aria-live="polite"></div>
+
+  <div class="panel">
+    <h3>The raw outputs behind the screen</h3>
+    <div class="tabs-inline" id="rawTabs"></div>
+    <pre id="rawBody"></pre>
+  </div>
+</section>
+
+<!-- ============================================================ EDGE -->
+<section class="view" data-view="edge" hidden>
+  <div class="view-head">
+    <span class="eyebrow">Chapter 8 · researched</span>
+    <h2>Edge computing on the Jetson: why, what breaks, and how it compares</h2>
+    <p>Why the project runs on a Jetson next to the patient, every hardware and software failure you are likely to hit, and how the Jetson, the models and the precision choices compare with the alternatives. Figures marked <span class="chip">calc</span> are our own arithmetic from sourced inputs. All other figures come from published sources listed at the end.</p>
+  </div>
+
+  <div class="tabs-inline" id="edgeTabs" role="tablist">
+    <button class="on" data-e="why">Why edge</button>
+    <button data-e="errors">Errors &amp; fixes</button>
+    <button data-e="power">Power &amp; thermal</button>
+    <button data-e="hw">Hardware compared</button>
+    <button data-e="models">Models &amp; precision</button>
+    <button data-e="accuracy">Angle accuracy</button>
+    <button data-e="privacy">Privacy &amp; law</button>
+    <button data-e="checklist">Deploy checklist</button>
+  </div>
+
+  <!-- WHY EDGE -->
+  <div class="edge-pane" data-e="why" style="display:grid;gap:16px">
+    <div class="grid3">
+      <div class="panel"><span class="eyebrow">Latency</span><h3>~45–80 ms on the Jetson vs ~180–260 ms via cloud <span class="chip">calc</span></h3><p class="small muted">India's median latency to cloud regions is 108–158 ms (Ookla, 2026) before any upload or inference. Motor-learning studies found ~60 ms less visual feedback delay raised implicit learning by ~50%, with the effect strongest under 100 ms.</p></div>
+      <div class="panel"><span class="eyebrow">Bandwidth</span><h3>0.5–4.3 GB/hour of video vs 6–60 MB/hour of angles <span class="chip">calc</span></h3><p class="small muted">Sending only numbers is a 100–1000× reduction. MJPEG at 640×480 would use ~60% of India's median 5G uplink (15.75 Mbps).</p></div>
+      <div class="panel"><span class="eyebrow">Privacy</span><h3>Video never leaves the room</h3><p class="small muted">Only joint angles are stored. The LLM receives age, condition and metrics, never the name or images. This simplifies duties under India's DPDP Act 2023 and Rules 2025.</p></div>
+    </div>
+
+    <div class="panel">
+      <h3>Latency calculator: edge vs cloud for one feedback cycle</h3>
+      <p class="small muted">Move the sliders. Bars show the time from movement to feedback on screen. Defaults are our estimates <span class="chip">calc</span> from the sourced inputs above.</p>
+      <div class="ctls">
+        <label class="ctl">Network round-trip to cloud: <b id="rttV">130</b> ms<input type="range" id="rtt" min="20" max="500" value="130"></label>
+        <label class="ctl">Edge inference (pose model): <b id="infV">30</b> ms<input type="range" id="inf" min="4" max="150" value="30"></label>
+        <label class="ctl">Upload one frame (≈45 KB JPEG) on uplink: <b id="upV">15</b> Mbps<input type="range" id="up" min="1" max="50" value="15"></label>
+        <label class="ctl">Cloud GPU inference: <b id="cinfV">8</b> ms<input type="range" id="cinf" min="2" max="60" value="8"></label>
+      </div>
+      <div id="latBars" style="display:grid;gap:10px"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Edge vs cloud vs hybrid (this project uses hybrid)</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Factor</th><th>Edge only (Jetson)</th><th>Cloud only</th><th>Hybrid: edge vision + cloud LLM text</th></tr></thead>
+        <tbody>
+          <tr><td>Feedback latency</td><td>~45–80 ms <span class="chip">calc</span></td><td>~180–260 ms median, 300–500+ ms spikes <span class="chip">calc</span></td><td>Same as edge for live feedback; LLM report takes 2–10 s after the session</td></tr>
+          <tr><td>Works offline</td><td>Yes, fully</td><td>No</td><td>Yes, offline template reports until internet returns</td></tr>
+          <tr><td>Data leaving device</td><td>None</td><td>Full video (health + biometric data)</td><td>De-identified numbers only</td></tr>
+          <tr><td>Bandwidth per patient-hour</td><td>0</td><td>0.5–4.3 GB <span class="chip">calc</span></td><td>A few KB per report</td></tr>
+          <tr><td>Cost</td><td>$249 one-time + ≈₹0.12–0.20/h power <span class="chip">calc</span></td><td>≈$0.579/h (AWS g4dn.xlarge, Mumbai) + data</td><td>Edge cost + free Gemini tier</td></tr>
+          <tr><td>Power</td><td>7–25 W</td><td>70 W for a T4 card alone, plus server and network</td><td>7–25 W + small API calls</td></tr>
+          <tr><td>Compute ceiling</td><td>8 GB shared memory; small models only</td><td>Practically unlimited</td><td>Heavy language work moved to cloud</td></tr>
+          <tr><td>Maintenance</td><td>Each device updated by hand</td><td>Central updates</td><td>Device + API key management</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="panel">
+      <h3>Cost break-even: buy a Jetson or rent a cloud GPU?</h3>
+      <div class="ctls">
+        <label class="ctl">Clinic hours per day: <b id="hpdV">4</b><input type="range" id="hpd" min="1" max="24" value="4"></label>
+        <label class="ctl">Cloud price per hour (USD): <b id="cphV">0.579</b><input type="range" id="cph" min="0.2" max="1.5" step="0.01" value="0.579"></label>
+      </div>
+      <p id="beText" style="font-size:1.05rem"></p>
+      <p class="small muted">Jetson Orin Nano Super dev kit $249. Cloud price from AWS g4dn.xlarge Mumbai via third-party trackers. Ignores data charges, which make the cloud even more expensive. <span class="chip">calc</span></p>
+    </div>
+  </div>
+
+  <!-- ERRORS -->
+  <div class="edge-pane" data-e="errors" hidden style="display:grid;gap:12px">
+    <p class="muted">Each card gives the symptom you will see, the root cause, a command to confirm it, and the fix. Filter by area.</p>
+    <div class="filters" id="errFilters"></div>
+    <div class="problist" id="errList"></div>
+  </div>
+
+  <!-- POWER -->
+  <div class="edge-pane" data-e="power" hidden style="display:grid;gap:16px">
+    <div class="panel">
+      <h3>Power modes on the Orin Nano 8 GB</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Mode</th><th>nvpmodel ID</th><th>CPU max</th><th>GPU max</th><th>Memory max</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>15 W</td><td><code>-m 0</code></td><td>1510 MHz</td><td>625 MHz</td><td>2133 MHz</td><td>Default on older JetPack</td></tr>
+          <tr><td>7 W</td><td><code>-m 1</code></td><td>960 MHz</td><td>408 MHz</td><td>2133 MHz</td><td>Battery or fanless use</td></tr>
+          <tr><td>MAXN SUPER</td><td><code>-m 2</code></td><td>1728 MHz</td><td>1020 MHz</td><td>3199 MHz</td><td>JetPack 6.2 with the <code>jetson-orin-nano-devkit-super</code> flash config; 67 sparse TOPS</td></tr>
+        </tbody>
+      </table></div>
+      <pre>sudo nvpmodel -q            # show current mode
+sudo nvpmodel -m 2          # MAXN SUPER (JetPack 6.2+)
+sudo jetson_clocks --fan    # lock clocks at max AND force fan to max
+tegrastats --interval 1000  # what src/jetson_monitor.py parses</pre>
+      <p class="small muted">After <code>jetson_clocks</code>, the power mode cannot be changed until reboot.</p>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Thermal limits</h3>
+        <div id="thermo"></div>
+        <p class="small muted">Software throttling starts at 99 °C, hardware throttling at 103 °C (clocks cut 50 / 75 / 87.5%), shutdown at ~104.5–105 °C. The default fan profile is "quiet". Since L4T 32.4 plain <code>jetson_clocks</code> no longer forces the fan; add <code>--fan</code>.</p>
+      </div>
+      <div class="panel">
+        <h3>Over-current throttling, the more likely slowdown</h3>
+        <div class="tbl"><table>
+          <thead><tr><th>Event</th><th>Trigger (15 W mode)</th><th>Clock cut</th></tr></thead>
+          <tbody>
+            <tr><td>OC1</td><td>Input under-voltage (&lt; ~4.5 V)</td><td>87.5%</td></tr>
+            <tr><td>OC2</td><td>Average power &gt; 15 W</td><td>50%</td></tr>
+            <tr><td>OC3</td><td>Instant power &gt; 20 W</td><td>87.5%</td></tr>
+          </tbody>
+        </table></div>
+        <pre>grep "" /sys/class/hwmon/hwmon*/oc*_event_cnt</pre>
+        <p class="small muted">The same "System throttled due to over-current" message appears for heat and power. In a cooled dev kit it is usually power: use the official supply and the barrel jack.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HARDWARE -->
+  <div class="edge-pane" data-e="hw" hidden style="display:grid;gap:16px">
+    <div class="panel">
+      <h3>Edge platforms for real-time pose estimation</h3>
+      <p class="small muted">Numbers come from different test conditions (model-only timing, batch sizes, hosts), so compare rows carefully. INR prices use ₹85/USD and exclude import duty and GST.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Platform</th><th>AI compute</th><th>Price</th><th>Power</th><th>Measured speed (nano-size model, 640 px unless noted)</th><th>Software</th><th>Verdict for this project</th></tr></thead>
+        <tbody>
+          <tr><td><b>Jetson Orin Nano Super 8 GB</b></td><td>67 sparse / 33 dense TOPS, Ampere GPU</td><td>$249 (≈₹21k)</td><td>7–25 W</td><td>YOLOv8n: 20.9 ms PyTorch → <b>4.43 ms TRT FP16 (≈225 FPS)</b>; YOLO26n: 15.6 → 4.57 ms</td><td>CUDA, TensorRT, full PyTorch</td><td>Chosen. Best ecosystem, GPU headroom for multi-model</td></tr>
+          <tr><td>Jetson Orin NX 16 GB</td><td>up to 157 TOPS (Super)</td><td>higher</td><td>10–40 W</td><td>YOLO26n TRT FP16 4.13 ms, only ~10% faster on a nano model</td><td>same as above</td><td>Overkill for one camera</td></tr>
+          <tr><td>Jetson Nano (2019)</td><td>0.5 TFLOPS Maxwell</td><td>legacy</td><td>5–10 W</td><td>YOLOv8n ≈19 FPS vs ≈100 FPS on Orin Nano</td><td>JetPack 4.6.6 final, Ubuntu 18.04, Python 3.6; Ultralytics only via Docker</td><td>Avoid: end of life</td></tr>
+          <tr><td>Raspberry Pi 5 (CPU)</td><td>4× Cortex-A76</td><td>low</td><td>~5–12 W</td><td>YOLO26n FP32: 299 ms PyTorch, <b>67 ms NCNN (≈15 FPS)</b></td><td>NCNN, ONNX</td><td>Too slow for smooth feedback</td></tr>
+          <tr><td>Pi 5 + AI HAT+ (Hailo-8L / Hailo-8)</td><td>13 / 26 TOPS</td><td>HAT $70 / $110</td><td>low</td><td>yolov8s_pose 123 FPS at batch 8; ≈46–65 FPS at batch 1 (user reports)</td><td>Hailo SDK, compiled models only</td><td>Good budget option; tighter tooling, real speed often below spec</td></tr>
+          <tr><td>Google Coral Edge TPU</td><td>4 TOPS</td><td>low</td><td>~2 W (TPU)</td><td>MoveNet Lightning 7.1 ms, Thunder 13.8 ms, PoseNet 10.3 ms</td><td>Fully quantized TFLite only; pages last updated 2020</td><td>Fast but rigid; no 3D, platform stagnant</td></tr>
+          <tr><td>Laptop CPU</td><td>x86 CPU</td><td>owned</td><td>15–45 W</td><td>YOLO26n-pose 40.3 ms ONNX CPU</td><td>Everything</td><td>Fine for development and demo mode</td></tr>
+          <tr><td>Cloud NVIDIA T4</td><td>65 FP16 TFLOPS</td><td>≈$0.35–0.58/h</td><td>70 W card</td><td>YOLO26n-pose 1.8 ms TensorRT</td><td>Everything</td><td>Fast GPU, but network adds 100+ ms</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="panel">
+      <h3>Inference time on the Orin Nano Super by export format (YOLO26n, 640 px)</h3>
+      <div id="fmtBars"></div>
+      <p class="small muted">Ultralytics benchmark, model inference only. Pre/post-processing, camera decode and JPEG encode add to the real loop time.</p>
+    </div>
+  </div>
+
+  <!-- MODELS -->
+  <div class="edge-pane" data-e="models" hidden style="display:grid;gap:16px">
+    <div class="panel">
+      <h3>Pose models compared</h3>
+      <p class="small muted">Each family reports accuracy on a different benchmark, so accuracy is comparable only within a row group.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Model</th><th>Keypoints</th><th>3D?</th><th>People</th><th>Accuracy</th><th>Speed</th><th>Use it when</th></tr></thead>
+        <tbody>
+          <tr><td><b>MediaPipe BlazePose</b> (Lite / Full / Heavy)</td><td>33</td><td>Yes, world coords in metres</td><td>1</td><td>PCK@0.2 ≈90–93 / 96 / 97 (Google test sets)</td><td>20 / 25 / 53 ms on Pixel 3 GPU; CPU-only on Jetson</td><td>One patient, angles matter most (3D cuts perspective error)</td></tr>
+          <tr><td><b>YOLOv8n-pose</b> (in this project)</td><td>17 COCO</td><td>No</td><td>Many</td><td>50.4 pose mAP, 3.3 M params</td><td>131.8 ms CPU ONNX; 1.18 ms A100 TRT</td><td>GPU speed with TensorRT</td></tr>
+          <tr><td>YOLO11n-pose</td><td>17</td><td>No</td><td>Many</td><td>50.0 mAP, 2.9 M</td><td>1.7 ms T4 TRT</td><td>Same as v8n, smaller</td></tr>
+          <tr><td><b>YOLO26n-pose</b></td><td>17</td><td>No</td><td>Many</td><td><b>57.2 mAP</b>, 2.9 M</td><td>1.8 ms T4 TRT, 40.3 ms CPU ONNX</td><td>Drop-in upgrade: +6.8 mAP over v8n</td></tr>
+          <tr><td>MoveNet Lightning / Thunder</td><td>17</td><td>No</td><td>1</td><td>63.0 / 72.0 mAP (single-person COCO crops)</td><td>25 ms Pixel 5 GPU; 186 ms Pi 4</td><td>Coral or phone deployment</td></tr>
+          <tr><td>RTMPose-m</td><td>17</td><td>No</td><td>Many (top-down)</td><td>75.8 COCO AP</td><td>90+ FPS i7 CPU, 430+ FPS GTX 1660 Ti</td><td>Highest accuracy per compute</td></tr>
+          <tr><td>ViTPose-B / L</td><td>17</td><td>No</td><td>Many (top-down)</td><td>75.8 / 78.3 AP (80.9 best on test-dev)</td><td>Heavy</td><td>Research accuracy, not edge</td></tr>
+          <tr><td>OpenPose</td><td>18–25</td><td>No</td><td>Many</td><td>Not verified</td><td>Slow without a big GPU</td><td>Historical baseline</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="panel">
+      <h3>FP32 vs FP16 vs INT8 on TensorRT</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Precision</th><th>YOLO26n detection on Orin Nano Super</th><th>Accuracy effect</th><th>Recommendation</th></tr></thead>
+        <tbody>
+          <tr><td>PyTorch FP32</td><td>15.6 ms</td><td>mAP 0.479 (baseline)</td><td>Development only</td></tr>
+          <tr><td>TensorRT FP32</td><td>7.53 ms</td><td>0.477</td><td>Safe, 2× faster</td></tr>
+          <tr><td><b>TensorRT FP16</b></td><td><b>4.57 ms</b></td><td>0.480, within 0.1 mAP on every model tested</td><td><b>Use this</b>. What <code>scripts/export_tensorrt.py</code> builds</td></tr>
+          <tr><td>TensorRT INT8</td><td>3.80 ms</td><td>0.449 detection; <b>pose mAP fell 56.7 → 33.4</b> on YOLO26n-pose; INT8 slower than FP16 for nano pose on Ultralytics' GPU</td><td>Avoid for keypoints. Needs ≥ 500 calibration images; broken on TensorRT 10.3 (JetPack 6), fixed in 10.7+</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout small">Why INT8 hurts pose more than detection: keypoint coordinates are fine-grained regression outputs. Rounding activations to 8-bit shifts each joint by a few pixels, and the angle maths magnifies those shifts.</div>
+    </div>
+    <div class="panel">
+      <h3>Smoothing filters</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Filter</th><th>How it works</th><th>Lag</th><th>Status here</th></tr></thead>
+        <tbody>
+          <tr><td>EMA</td><td>Fixed blend of new and old value</td><td>α = 0.3 at 30 FPS ≈ 78 ms <span class="chip">calc</span></td><td>Used (α = 0.35)</td></tr>
+          <tr><td>One-Euro (Casiez, CHI 2012)</td><td>Smoothing strength drops as speed rises</td><td>Lower lag than EMA for the same jitter</td><td>Recommended upgrade</td></tr>
+          <tr><td>Kalman</td><td>Predicts position from a motion model</td><td>Low; can bridge brief dropouts</td><td>Harder to tune</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ACCURACY -->
+  <div class="edge-pane" data-e="accuracy" hidden style="display:grid;gap:16px">
+    <div class="panel">
+      <h3>How accurate are camera-measured joint angles?</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Study</th><th>Compared with</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>OpenPose gait (Stenum 2021)</td><td>Marker-based motion capture</td><td>Mean error hip 4.0°, knee 5.6°, ankle 7.4° (sagittal plane)</td></tr>
+          <tr><td>MediaPipe knee (JMIR 2026 preprint, not peer-reviewed)</td><td>Goniometer</td><td>Static ICC 0.874, RMSE ≈15.5°; dynamic tasks underestimated ≈5°; single-leg stance ICC 0.136 (poor)</td></tr>
+          <tr><td>Cycling studies</td><td>Motion capture</td><td>3–9° error</td></tr>
+          <tr><td>Frontal-plane knee valgus</td><td>Vicon</td><td>Absolute angles not valid</td></tr>
+          <tr><td>BlazePose elbow flexion</td><td>Reference systems</td><td>Underestimates large flexion; error grows with angle, so a fixed offset cannot correct it</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout">Realistic expectation: about 4–8° error, and only with the camera side-on at joint height. That is why the README calls scores "computational indicators, not clinically validated assessments".</div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>Camera set-up protocol</h3><ul class="small" style="margin:0;padding-left:18px;display:grid;gap:4px">
+        <li>Camera perpendicular to the moving limb (sagittal view)</li><li>Lens at the height of the joint being measured</li><li>2–3 m away so hip, knee and ankle stay in frame</li><li>Even lighting, fitted clothing, plain background</li><li>Patient's tested side facing the camera</li></ul></div>
+      <div class="panel"><h3>Validate it yourself (viva-ready)</h3><ol class="small" style="margin:0;padding-left:18px;display:grid;gap:4px">
+        <li>Hold 5 knee angles (90°…180°) measured by a goniometer</li><li>Record the app's angle for each, 3 trials</li><li>Report mean absolute error and RMSE</li><li>Plot Bland-Altman (difference vs mean) and compute ICC</li><li>Repeat with the camera rotated 30° to show the 3D benefit</li></ol></div>
+    </div>
+  </div>
+
+  <!-- PRIVACY -->
+  <div class="edge-pane" data-e="privacy" hidden style="display:grid;gap:16px">
+    <div class="panel">
+      <h3>Health-data rules that apply</h3>
+      <div class="tbl"><table>
+        <thead><tr><th></th><th>India: DPDP Act 2023 + Rules 2025</th><th>EU: GDPR</th><th>US: HIPAA</th></tr></thead>
+        <tbody>
+          <tr><td>Status</td><td>Rules notified 13/14 Nov 2025; most fiduciary duties apply from 13 May 2027</td><td>In force since 2018</td><td>In force</td></tr>
+          <tr><td>Health / body data</td><td>Personal data; consent + security safeguards required</td><td>Art. 9 special category (health, biometric)</td><td>Protected health information</td></tr>
+          <tr><td>Breach reporting</td><td>Within 72 hours; logs kept ≥ 1 year (Rule 8(3))</td><td>72 hours</td><td>Up to 60 days</td></tr>
+          <tr><td>Maximum penalty</td><td>Up to ₹250 crore (security failures); ₹200 crore (breach not reported)</td><td>€20 M or 4% of turnover</td><td>$2,190,294 annual cap per violation type (2025)</td></tr>
+          <tr><td>How this project helps</td><td colspan="3">No raw video stored or sent; numbers only in local SQLite; LLM context has no name; patient data stays on the clinic device. Joint angles linked to a patient profile are still personal health data, so the database itself needs access control, consent and backups.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">Penalty tiers come from law-firm and secondary summaries, which disagree on the middle tiers. Check the official text before citing.</p>
+    </div>
+    <div class="callout">Free Gemini tier caveat: Google may use free-tier prompts to improve its products, and human reviewers may read them. Send only de-identified metrics (as this project does). For real patient deployments, use a paid tier or a small local LLM on the Jetson (keep it under 4 B parameters to fit in memory).</div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="edge-pane" data-e="checklist" hidden style="display:grid;gap:16px">
+    <div class="panel plan">
+      <h3>Jetson deployment checklist</h3>
+      <p class="muted small">Work through these in order on the device. Ticks are saved in this browser.</p>
+      <div class="bar" aria-hidden="true"><i id="ckbar"></i></div>
+      <ul id="cklist"></ul>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Sources</h3>
+    <p class="small muted">NVIDIA Jetson Linux r36.4 Developer Guide (power and thermal); NVIDIA Orin Nano Super announcement (Dec 2024); Ultralytics docs (NVIDIA Jetson guide, Raspberry Pi guide, pose models, TensorRT integration, YOLO26 benchmarks); NVIDIA developer forums (MediaPipe on Orin, TensorRT engine portability, over-current throttling); Jetson AI Lab (memory optimisation); PyPI mediapipe; Google MediaPipe BlazePose docs and arXiv 2006.10204; MoveNet model cards; RTMPose arXiv 2303.07399; ViTPose; Coral Edge TPU benchmarks; Hailo and Seeed Studio benchmarks; Stenum et al. 2021 (PLOS Comput Biol); JMIR 2026 MediaPipe knee preprint; Sensors 2025 and IEEE Access 2025 camera-position studies; Casiez et al. CHI 2012 (One-Euro filter); Ookla India 2026; TRAI telecom subscription data; MeitY DPDP Rules 2025 and law-firm summaries; GDPR Art. 9; HHS HIPAA penalty adjustment 2025; PMC12062458 (feedback delay and motor learning); MDPI Electronics 12(16):3375 (on-device ML healthcare). Full citations: <code>reports/Jetson edge AI rehab deployment.md</code> in the project folder.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">Built from the project source in <code>rehab-motion-evaluator/</code>. Line numbers match the code as of 25 Nov 2026. This is a learning aid for an AI-assisted monitoring prototype, not a medical device.</div>
+</footer>
+
+<script>
+/* ---------------------------------------------------------------- data: concepts */
+const CONCEPTS = [
+  ["The problem", "Physiotherapy patients repeat exercises like knee extensions at home or in a clinic. A therapist cannot watch every repetition. The project watches through a camera, counts reps, measures how far the joint moves, and warns when the movement is wrong or too fast."],
+  ["An image is just numbers", "A 640×480 colour frame is an array of 640 × 480 × 3 = 921,600 numbers (Blue, Green, Red, each 0–255). OpenCV hands the code this NumPy array, shape <code>(480, 640, 3)</code>."],
+  ["Pose estimation", "A neural network looks at the image and returns body keypoints: an (x, y) pixel position plus a visibility score (0–1) for each joint. MediaPipe gives 33 points (and 3D 'world' coordinates in metres); YOLOv8-Pose gives the 17 COCO points. The project keeps the same 12: shoulders, elbows, wrists, hips, knees, ankles."],
+  ["Joint angle", "Three keypoints make an angle at the middle one. Knee angle uses hip → knee ← ankle. Build vectors BA = hip − knee and BC = ankle − knee, then angle = arccos( BA·BC / (|BA|·|BC|) ). 180° is a straight leg."],
+  ["Noise and smoothing", "Keypoints wobble a few pixels every frame even when you stand still. An exponential moving average (EMA) blends each new angle with the previous one: smooth = α·new + (1−α)·old, with α = 0.35."],
+  ["A repetition as a state machine", "A rep is a cycle: start bent (below the start threshold) → move until the target angle → come back. The code walks through the states ready → in_progress → target_reached and only counts when the full cycle completes, so wobbling near one threshold cannot count twice."],
+  ["Rule-based feedback", "After each frame, simple rules check: is a joint hidden? too fast? posture wrong? range too small? The first rule that fires picks the message and a per-frame score (100, 95, 88, 75, 72 or 65). The session score is their average."],
+  ["Edge computing", "Running the AI on a small computer next to the patient (an NVIDIA Jetson Orin Nano) instead of in a data centre. Video never leaves the room, there is no network delay, and it works without internet."],
+  ["Web server and dashboard", "Flask (Python) serves a web page. The browser fetches a JSON status 4 times a second and keeps one long connection open for video as MJPEG, which is simply JPEG images sent one after another."],
+  ["Database", "SQLite stores everything in one file, <code>data/rehab_sessions.db</code>. No server needed. Three tables: patients, sessions, session_frames."],
+  ["Personalisation", "Each patient has a profile. A physiotherapist can approve a personal target angle. After 3 sessions, the code suggests making the target harder or easier based on the patient's own results."],
+  ["LLM layer", "A large language model (Google Gemini, free tier) turns the measured numbers into a friendly report in English, Hindi or Marathi. It only explains numbers, never counts reps or diagnoses, and never receives the patient's name or video."],
+];
+document.getElementById("concepts").innerHTML = CONCEPTS.map((c, i) =>
+  `<div class="panel concept"><div class="num">${String(i + 1).padStart(2, "0")}</div><div style="display:grid;gap:6px;min-width:0"><h3>${c[0]}</h3><p>${c[1]}</p></div></div>`).join("");
+
+/* ---------------------------------------------------------------- study plan */
+const PLAN = [
+  "Read the 12 basic ideas above",
+  "Run it: python app.py, open localhost:5000, click Demo Mode",
+  "Chapter 2: click every pipeline stage once",
+  "Chapter 3: step through one frame end to end",
+  "Lab A: drag points and change EMA alpha",
+  "Lab B: break the rep counter three different ways",
+  "Read src/angle_calculator.py (99 lines) fully",
+  "Read ExerciseTracker.update in src/exercise_tracker.py",
+  "Read MovementEvaluator.evaluate in src/evaluator.py",
+  "Read _process_loop in src/pipeline.py",
+  "Run python -m pytest -q and read tests/test_core.py",
+  "Change one threshold in config/exercises.json and observe",
+  "Generate an AI report in Hindi and in Marathi",
+  "Read the Edge & Hardware chapter and its comparison tables",
+];
+const planKey = "rehab-guide-plan";
+let planState = {};
+try { planState = JSON.parse(localStorage.getItem(planKey) || "{}"); } catch (e) { planState = {}; }
+function renderPlan() {
+  const list = document.getElementById("planlist");
+  list.innerHTML = PLAN.map((t, i) => `<li><input type="checkbox" id="plan${i}" ${planState[i] ? "checked" : ""}><label for="plan${i}">${t}</label></li>`).join("");
+  const done = PLAN.filter((_, i) => planState[i]).length;
+  document.getElementById("planbar").style.width = `${(done / PLAN.length) * 100}%`;
+  list.querySelectorAll("input").forEach((el, i) => el.addEventListener("change", () => {
+    planState[i] = el.checked;
+    try { localStorage.setItem(planKey, JSON.stringify(planState)); } catch (e) {}
+    renderPlan();
+  }));
+}
+renderPlan();
+
+/* ---------------------------------------------------------------- pipeline stages */
+const STAGES = [
+  { t: "Camera capture", f: "src/camera.py", s: "VideoStream",
+    in: "Phone IP-camera URL (MJPEG/RTSP), USB index 0, or 'demo'",
+    does: "A background thread keeps calling cap.read() and stores only the newest frame. If the stream drops it releases the capture, waits, and reconnects. 'demo' draws a synthetic frame at 30 fps.",
+    out: "NumPy array shape (480, 640, 3), dtype uint8, BGR",
+    prob: "Network cameras buffer frames, so a naive read loop shows video seconds late and freezes forever when Wi-Fi blips.",
+    refs: ["src/camera.py:71 _open_capture (CAP_FFMPEG, BUFFERSIZE=1)", "src/camera.py:135 _update_loop (reconnect)", "src/camera.py:163 read() returns a copy"],
+    code: `cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)   # keep latency low
+ok, frame = self._cap.read()
+if not ok or frame is None:
+    self._last_error = "Lost stream ...; reconnecting..."
+    self._cap.release(); self._cap = None
+    time.sleep(self.reconnect_delay)` },
+  { t: "Pose estimation", f: "src/pose_estimator.py", s: "PoseEstimator",
+    in: "BGR frame",
+    does: "Runs one backend chosen at start-up. 'auto' tries a TensorRT .engine, then MediaPipe, then YOLOv8 PyTorch, then demo. Every backend's output is mapped onto the same 12 named joints.",
+    out: "dict name → Landmark(x, y, visibility, wx, wy, wz)",
+    prob: "Different models number joints differently (MediaPipe 33 points, COCO 17) and some may not install on the Jetson. The rest of the code must not care which one ran.",
+    refs: ["src/pose_estimator.py:16 LANDMARK_NAMES (12 joints)", "src/pose_estimator.py:33 MP_LANDMARK_INDEX / :49 COCO_KEYPOINT_INDEX", "src/pose_estimator.py:99 backend fallback order", "src/pose_estimator.py:212 detect()"],
+    code: `elif self.requested_backend == "auto":
+    engine_file = BASE_DIR / "models" / "yolov8n-pose.engine"
+    if engine_file.exists() and self._init_yolo(str(engine_file)):
+        return                      # fastest: TensorRT on GPU
+    if self._init_mediapipe(...): return   # 3D world landmarks
+    if self._init_yolo(yolo_model_path): return
+self.active_backend = "demo"` },
+  { t: "Joint angles", f: "src/angle_calculator.py", s: "JointAngleCalculator",
+    in: "12 landmarks",
+    does: "For 6 joints (L/R elbow, knee, hip) take the 3-point triplet, skip it if any point's visibility < 0.55, use 3D world coordinates when available, else 2D pixels, then EMA-smooth.",
+    out: "{'right_knee': 142.3, 'left_knee': None, ...} degrees",
+    prob: "Hidden joints give garbage positions, a camera at an angle distorts 2D angles, and raw keypoints jitter.",
+    refs: ["src/angle_calculator.py:12 JOINT_TRIPLETS", "src/angle_calculator.py:22 compute_angle_3pts", "src/angle_calculator.py:63 calculate_all (visibility, 3D, EMA)"],
+    code: `ba, bc = pa - pb, pc - pb
+cosine = np.dot(ba, bc) / (norm(ba) * norm(bc))
+angle = degrees(arccos(clip(cosine, -1, 1)))
+smoothed = alpha * raw + (1 - alpha) * prev   # alpha = 0.35` },
+  { t: "Rep tracking", f: "src/exercise_tracker.py", s: "ExerciseTracker",
+    in: "angle dict + timestamp",
+    does: "Picks the side (left/right/both average), computes angular velocity, moves the state machine, counts a rep only after start → target → back to start with a cooldown, and records per-rep ROM, duration, peak speed and left/right peaks.",
+    out: "RepUpdate(reps, stage, primary_angle, angular_velocity, last_rep, ...)",
+    prob: "Counting reps reliably when the angle wobbles near a threshold, and adapting to each patient's resting angle.",
+    refs: ["src/exercise_tracker.py:152 _resolve_joint_angles (side)", "src/exercise_tracker.py:172 update (state machine)", "src/exercise_tracker.py:129 apply_calibration", "src/exercise_tracker.py:91 _finish_rep (rep analytics)"],
+    code: `if direction == "extend":
+    if stage == "ready" and angle <= start_th:   stage = "in_progress"
+    elif stage == "in_progress" and angle >= target_th: stage = "target_reached"
+    elif stage == "target_reached" and angle <= start_th \\
+         and now - last_rep_ts >= cooldown:
+        reps += 1; stage = "in_progress"` },
+  { t: "Evaluation", f: "src/evaluator.py", s: "MovementEvaluator",
+    in: "RepUpdate",
+    does: "Checks rules in priority order: joint not visible → rep just completed → too fast → posture (secondary hip angle) → target reached → in range or not. Gives a message key, a status colour and a frame score.",
+    out: "EvaluationResult(status, feedback, feedback_key, consistency_score)",
+    prob: "Patients need one clear instruction at a time, and the therapist needs a single quality number.",
+    refs: ["src/evaluator.py:47 evaluate()", "config/exercises.json feedback / feedback_hi / feedback_mr"],
+    code: `elif update.angular_velocity > max_vel:
+    status, key, frame_score = "warning", "too_fast", 65.0
+...
+self._frame_scores.append(frame_score)
+consistency = mean(self._frame_scores)` },
+  { t: "Orchestration", f: "src/pipeline.py", s: "RehabPipeline",
+    in: "everything above",
+    does: "The processing loop glues stages together under a lock: handles 3-second calibration (median angle), logs a telemetry row every 100 ms during a session, builds the telemetry dictionary, draws the skeleton and HUD, encodes JPEG.",
+    out: "self._telemetry (dict) and self._latest_jpeg (bytes)",
+    prob: "Camera, processing and web threads all touch the same state at once.",
+    refs: ["src/pipeline.py:335 _process_loop", "src/pipeline.py:252 _draw_overlay", "src/pipeline.py:205 start_session / :221 stop_session", "src/pipeline.py:165 set_patient"],
+    code: `with self._lock:
+    angles = self.angle_calc.calculate_all(landmarks)
+    rep_update = self.tracker.update(angles, timestamp=now)
+    eval_result = self.evaluator.evaluate(rep_update)
+    if session_active and now - last_logged >= 0.1:
+        self._session_frames.append({...})   # 10 Hz log` },
+  { t: "Web server", f: "app.py", s: "Flask routes",
+    in: "HTTP requests from the browser",
+    does: "Serves the page, the MJPEG stream, telemetry JSON, and 22 routes for camera, exercise, side, calibration, sessions, patients, targets, reports and Q&A.",
+    out: "HTML, JSON, multipart JPEG stream, CSV downloads",
+    prob: "The browser needs live video and data without WebSockets or extra libraries.",
+    refs: ["app.py:56 /video_feed", "app.py:63 /api/telemetry", "src/pipeline.py:551 generate_mjpeg"],
+    code: `return Response(pipeline.generate_mjpeg(),
+    mimetype="multipart/x-mixed-replace; boundary=frame")
+# generator yields: b"--frame\\r\\nContent-Type: image/jpeg\\r\\n\\r\\n" + jpeg` },
+  { t: "Dashboard", f: "web/static/js/dashboard.js + coach.js", s: "Browser",
+    in: "telemetry JSON every 250 ms",
+    does: "Updates KPIs, the live angle chart, the stage badge and feedback in the chosen language. coach.js speaks rep counts and warnings with the browser's speech engine, draws the progress chart and opens AI reports.",
+    out: "What the patient and physio see and hear",
+    prob: "Elderly patients may not read the screen or English; the page must work offline on a LAN.",
+    refs: ["web/static/js/dashboard.js pollTelemetry", "web/static/js/coach.js handleVoice / speak", "web/static/js/chart.umd.min.js (bundled offline)"],
+    code: `els.feedbackBanner.textContent =
+  (data.feedback_i18n && data.feedback_i18n[lang]) || data.feedback;
+if (data.reps > voiceState.lastReps)
+  speak(\`\${REP_WORD[lang]} \${data.reps}\`, lang);` },
+  { t: "Storage", f: "src/session_manager.py", s: "SessionManager",
+    in: "session summary, frame list, rep details",
+    does: "Creates tables, migrates old databases by adding missing columns, saves sessions and frames, stores patients and their approved targets, caches AI reports, exports CSV.",
+    out: "Rows in data/rehab_sessions.db and data/exports/session_N_frames.csv",
+    prob: "Results must survive restarts without a database server, and old databases must keep working after new features.",
+    refs: ["src/session_manager.py:31 _init_db (+ ALTER TABLE migrations)", "src/session_manager.py:204 save_session", "src/session_manager.py:148 set_patient_overrides"],
+    code: `if "patient_id" not in cols:
+    conn.execute("ALTER TABLE sessions ADD COLUMN patient_id INTEGER")` },
+  { t: "Analytics + AI", f: "src/progress.py + src/llm_coach.py", s: "summarize_reps, suggest_target, LLMCoach",
+    in: "saved sessions of one patient",
+    does: "Computes average ROM, tempo, variability, fatigue and left/right gap; suggests a harder or easier target after 3 sessions; sends metrics (no name) to Gemini with safety rules; falls back across models and finally to offline templates.",
+    out: "Patient summary in en/hi/mr, clinician notes, flags, target suggestion",
+    prob: "Numbers alone are hard for patients; LLM calls can fail (suspended project, retired model, overload) and must never invent medical advice.",
+    refs: ["src/progress.py:17 summarize_reps", "src/progress.py:100 suggest_target", "src/llm_coach.py:90 _generate (fallback chain)", "src/llm_coach.py:208 offline_report"],
+    code: `for model in [preferred] + FALLBACK_MODELS:
+    try: return call_gemini(model, prompt)
+    except HTTPError as e:
+        if e.code in (404, 429, 500, 503): continue  # next model
+        return None                                   # auth errors
+return offline_report(context, language)` },
+  { t: "Hardware monitor", f: "src/jetson_monitor.py", s: "JetsonHardwareMonitor",
+    in: "tegrastats output (Jetson) or /proc (Linux)",
+    does: "Runs tegrastats every second in a background process and parses CPU %, GPU %, RAM, temperature and power for the header strip.",
+    out: "{'cpu_percent': 41, 'gpu_percent': 63, 'temp_c': 52.1, 'power_w': 9.8, ...}",
+    prob: "On the edge you must see thermal throttling and power draw while the model runs.",
+    refs: ["src/jetson_monitor.py:20 parse_tegrastats_line", "src/jetson_monitor.py:132 _run_loop"],
+    code: `RAM 3120/7620MB ... CPU [38%@1510,...] GR3D_FREQ 63% ... cpu@52.1C ... VDD_IN 9800mW/...
+# parsed into the hardware_stats dict every second` },
+];
+const pipe = document.getElementById("pipe");
+pipe.innerHTML = STAGES.map((s, i) => `<button class="stage" data-i="${i}" aria-pressed="false"><span class="n">stage ${String(i + 1).padStart(2, "0")}</span><b>${s.t}</b><small>${s.f}</small></button>`).join("");
+function showStage(i) {
+  const s = STAGES[i];
+  pipe.querySelectorAll(".stage").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.i == i)));
+  document.getElementById("stageDetail").innerHTML = `
+    <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><h3>${i + 1}. ${s.t}</h3><span class="chip">${s.s}</span><span class="ref">${s.f}</span></div>
+    <div class="detail">
+      <dl class="kv">
+        <dt>Input</dt><dd>${s.in}</dd>
+        <dt>What it does</dt><dd>${s.does}</dd>
+        <dt>Output</dt><dd><code>${s.out}</code></dd>
+        <dt>Problem solved</dt><dd>${s.prob}</dd>
+        <dt>Code refs</dt><dd style="display:flex;flex-wrap:wrap;gap:6px">${s.refs.map(r => `<span class="ref">${r}</span>`).join("")}</dd>
+      </dl>
+      <pre>${s.code.replace(/</g, "&lt;")}</pre>
+    </div>`;
+}
+pipe.addEventListener("click", e => { const b = e.target.closest(".stage"); if (b) showStage(+b.dataset.i); });
+showStage(0);
+
+/* ---------------------------------------------------------------- one-frame journey */
+const JOURNEY = [
+  ["Camera thread stores a frame", "src/camera.py:135", "The phone streams MJPEG over Wi-Fi. The camera thread decodes the newest JPEG with FFmpeg and keeps only that one.", `frame = np.ndarray(shape=(480, 640, 3), dtype=uint8)
+frame[240, 320] = [ 86, 102, 131]   # one BGR pixel`],
+  ["Processing thread copies it", "src/pipeline.py:335", "_process_loop calls stream.read(), which returns a copy so the camera thread can overwrite its buffer safely.", `ok, frame = self.stream.read()     # ok = True
+t0 = time.perf_counter()`],
+  ["Pose model finds joints", "src/pose_estimator.py:212", "MediaPipe returns 33 landmarks; the code keeps 12 and converts normalised coordinates to pixels. World coordinates are in metres around the hips.", `landmarks["right_hip"]   = Landmark(x=318, y=215, visibility=0.98, wx=-0.09, wy=-0.01, wz=0.02)
+landmarks["right_knee"]  = Landmark(x=330, y=318, visibility=0.97, wx=-0.10, wy= 0.41, wz=0.05)
+landmarks["right_ankle"] = Landmark(x=405, y=352, visibility=0.95, wx= 0.27, wy= 0.52, wz=0.20)
+inference_ms = 31.4`],
+  ["Angles are computed", "src/angle_calculator.py:63", "All three knee points are visible (above 0.55) and have world coordinates, so the 3D formula is used, then smoothed with the previous value.", `raw 3D right_knee = 143.9°
+previous smoothed  = 140.8°
+smoothed = 0.35*143.9 + 0.65*140.8 = 141.9°
+angles = {"right_knee": 141.9, "left_knee": None, "right_hip": 168.2, ...}
+angle_mode = "3D"`],
+  ["Tracker updates the state machine", "src/exercise_tracker.py:172", "Side is 'right', so the primary angle is the right knee. 141.9° is above the start threshold (105°) but below the target (160°), so the stage stays in_progress.", `velocity = |141.9 - 138.6| / 0.033 s = 100.0 °/s
+RepUpdate(reps=5, stage="in_progress", primary_angle=141.9,
+          angular_velocity=100.0, rep_completed=False, last_rep=None)`],
+  ["Evaluator picks one message", "src/evaluator.py:47", "No rep completed, speed 100 < 180 limit, no posture check for this exercise, stage in_progress and angle inside the ideal range 85–175°.", `EvaluationResult(status="good", feedback_key="keep_going",
+  feedback="Keep straightening your knee smoothly",
+  consistency_score=89.4)      # running mean of frame scores (this frame: 88)`],
+  ["Telemetry row is logged", "src/pipeline.py:392", "A session is active and more than 100 ms passed since the last log, so one row is appended. It is written to SQLite when the session stops.", `{"elapsed_s": 47.912, "stage": "in_progress", "primary_angle": 141.9,
+ "angular_velocity": 100.0, "reps": 5, "consistency_score": 89.4,
+ "angle_mode": "3D", "feedback": "Keep straightening your knee smoothly"}`],
+  ["Telemetry dict is published", "src/pipeline.py:418", "Everything the browser needs goes into one dictionary, including the message in all three languages.", `"feedback_i18n": {"en": "Keep straightening your knee smoothly",
+                  "hi": "घुटने को धीरे-धीरे सीधा करते रहें",
+                  "mr": "गुडघा हळूहळू सरळ करत राहा"},
+"target_threshold": 165.0, "patient_name": "Test Veteran", "fps": 24.8`],
+  ["Overlay drawn and JPEG encoded", "src/pipeline.py:252", "Skeleton lines, the joint angle label and the HUD bar are painted on the frame, which is then JPEG-encoded at quality 80 (about 40–60 KB).", `cv2.putText(frame, "142 deg", (340, 310), ...)
+ret, buf = cv2.imencode(".jpg", annotated, [IMWRITE_JPEG_QUALITY, 80])
+self._latest_jpeg = buf.tobytes()      # 47,912 bytes`],
+  ["Browser receives video", "src/pipeline.py:551", "The open /video_feed connection sends the newest JPEG about every 33 ms. The img tag simply shows each new image.", `--frame
+Content-Type: image/jpeg
+
+<47,912 bytes of JPEG>`],
+  ["Browser receives telemetry", "web/static/js/dashboard.js", "Every 250 ms the page fetches /api/telemetry and updates numbers, the badge, the chart and the feedback in the selected language.", `kpiAngle  -> "141.9°"
+stageBadge -> "IN PROGRESS" (green)
+banner (hi) -> "घुटने को धीरे-धीरे सीधा करते रहें"`],
+  ["Voice and output", "web/static/js/coach.js", "If the rep count rises, the speech engine says the number. Warnings like too_fast are spoken at most every 4 seconds. After Stop & Save, the AI report opens.", `speak("दोहराव 6", "hi")      // when reps 5 -> 6
+// on stop: POST /api/sessions/42/report {language: "hi"}`],
+];
+let jIdx = 0;
+const jDots = document.getElementById("jDots");
+jDots.innerHTML = JOURNEY.map((_, i) => `<button data-i="${i}" aria-label="Step ${i + 1}">${i + 1}</button>`).join("");
+function showJourney(i) {
+  jIdx = Math.max(0, Math.min(JOURNEY.length - 1, i));
+  const [t, ref, txt, code] = JOURNEY[jIdx];
+  document.getElementById("jBody").innerHTML = `
+    <div style="display:grid;gap:10px;align-content:start">
+      <span class="eyebrow">Step ${jIdx + 1} of ${JOURNEY.length}</span>
+      <h3>${t}</h3><p>${txt}</p><div><span class="ref">${ref}</span></div>
+    </div><pre>${code.replace(/</g, "&lt;")}</pre>`;
+  jDots.querySelectorAll("button").forEach(b => b.classList.toggle("on", +b.dataset.i === jIdx));
+  document.getElementById("jPrev").disabled = jIdx === 0;
+  document.getElementById("jNext").disabled = jIdx === JOURNEY.length - 1;
+}
+document.getElementById("jPrev").onclick = () => showJourney(jIdx - 1);
+document.getElementById("jNext").onclick = () => showJourney(jIdx + 1);
+jDots.addEventListener("click", e => { const b = e.target.closest("button"); if (b) showJourney(+b.dataset.i); });
+showJourney(0);
+
+/* ---------------------------------------------------------------- theme colours for canvas */
+function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+/* ---------------------------------------------------------------- Lab A: angle */
+(function () {
+  const cv = document.getElementById("angleCanvas"), ctx = cv.getContext("2d");
+  const pts = { hip: { x: 200, y: 70 }, knee: { x: 230, y: 230 }, ankle: { x: 420, y: 280 } };
+  let drag = null, ema = null;
+  const noise = document.getElementById("noise"), alpha = document.getElementById("alpha");
+  function angle3(a, b, c) {
+    const ba = [a.x - b.x, a.y - b.y], bc = [c.x - b.x, c.y - b.y];
+    const dot = ba[0] * bc[0] + ba[1] * bc[1], nba = Math.hypot(...ba), nbc = Math.hypot(...bc);
+    if (nba < 1e-6 || nbc < 1e-6) return { ang: 0, ba, bc, dot, nba, nbc, cos: 1 };
+    const cos = Math.max(-1, Math.min(1, dot / (nba * nbc)));
+    return { ang: Math.acos(cos) * 180 / Math.PI, ba, bc, dot, nba, nbc, cos };
+  }
+  function pos(e) { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height }; }
+  cv.addEventListener("pointerdown", e => { const p = pos(e); drag = Object.keys(pts).find(k => Math.hypot(pts[k].x - p.x, pts[k].y - p.y) < 22) || null; if (drag) cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener("pointermove", e => { if (!drag) return; const p = pos(e); pts[drag].x = Math.max(10, Math.min(cv.width - 10, p.x)); pts[drag].y = Math.max(10, Math.min(cv.height - 10, p.y)); });
+  cv.addEventListener("pointerup", () => drag = null);
+  function frame() {
+    const n = +noise.value, a = +alpha.value;
+    document.getElementById("noiseV").textContent = n; document.getElementById("alphaV").textContent = a.toFixed(2);
+    const jit = p => ({ x: p.x + (Math.random() - .5) * 2 * n, y: p.y + (Math.random() - .5) * 2 * n });
+    const h = jit(pts.hip), k = jit(pts.knee), an = jit(pts.ankle);
+    const r = angle3(h, k, an);
+    ema = ema === null ? r.ang : a * r.ang + (1 - a) * ema;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    const fg = cssVar("--fg"), acc = cssVar("--accent"), acc2 = cssVar("--accent-2"), mut = cssVar("--muted");
+    // arc
+    const a1 = Math.atan2(h.y - k.y, h.x - k.x), a2 = Math.atan2(an.y - k.y, an.x - k.x);
+    let d = a2 - a1; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+    ctx.beginPath(); ctx.moveTo(k.x, k.y); ctx.arc(k.x, k.y, 46, a1, a1 + d, d < 0); ctx.closePath();
+    ctx.fillStyle = acc2 + "33"; ctx.fill();
+    ctx.lineWidth = 7; ctx.lineCap = "round"; ctx.strokeStyle = acc;
+    ctx.beginPath(); ctx.moveTo(h.x, h.y); ctx.lineTo(k.x, k.y); ctx.lineTo(an.x, an.y); ctx.stroke();
+    [["hip", h], ["knee", k], ["ankle", an]].forEach(([name, p]) => {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 11, 0, Math.PI * 2); ctx.fillStyle = name === "knee" ? acc2 : fg; ctx.fill();
+      ctx.fillStyle = mut; ctx.font = "13px Inter, sans-serif"; ctx.fillText(name, p.x + 15, p.y - 10);
+    });
+    ctx.fillStyle = fg; ctx.font = "600 20px 'Space Grotesk', sans-serif"; ctx.fillText(`${ema.toFixed(1)}°`, k.x + 52, k.y + 6);
+    document.getElementById("aRaw").textContent = r.ang.toFixed(1) + "°";
+    document.getElementById("aEma").textContent = ema.toFixed(1) + "°";
+    document.getElementById("aMath").textContent =
+`BA = hip - knee   = (${r.ba[0].toFixed(0)}, ${r.ba[1].toFixed(0)})
+BC = ankle - knee = (${r.bc[0].toFixed(0)}, ${r.bc[1].toFixed(0)})
+BA·BC  = ${r.dot.toFixed(0)}
+|BA||BC| = ${r.nba.toFixed(1)} × ${r.nbc.toFixed(1)}
+cos θ  = ${r.cos.toFixed(4)}
+θ      = arccos(cos θ) = ${r.ang.toFixed(1)}°`;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ---------------------------------------------------------------- Lab B: rep state machine */
+(function () {
+  const cv = document.getElementById("repCanvas"), ctx = cv.getContext("2d");
+  const $ = id => document.getElementById(id);
+  const ctl = ["st", "tg", "reach", "spd", "cd", "mv"];
+  let running = true, t = 0, hist = [], st;
+  const FB = { ready: "Ready — slowly straighten your knee", completed: "Movement completed", too_fast: "Move slowly and with control", target_reached: "Good, now lower your leg slowly", keep_going: "Keep straightening your knee smoothly", insufficient_range: "Try extending your knee further" };
+  function reset() { t = 0; hist = []; st = { reps: 0, stage: "ready", lastRep: -99, prev: null, prevT: null, scores: [] }; }
+  reset();
+  function patientAngle(time) {
+    const reach = +$("reach").value, spd = +$("spd").value, rest = 92;
+    const phase = (time * spd * 2 * Math.PI) / 4.5;
+    return rest + (reach - rest) * (0.5 - 0.5 * Math.cos(phase)) + (Math.random() - .5) * 2;
+  }
+  function step(dt) {
+    t += dt;
+    const ang = patientAngle(t), startTh = +$("st").value, targetTh = +$("tg").value, cool = +$("cd").value, maxV = +$("mv").value;
+    let vel = 0; if (st.prev !== null) vel = Math.abs(ang - st.prev) / dt;
+    st.prev = ang;
+    let completed = false;
+    if (st.stage === "ready" && ang <= startTh) st.stage = "in_progress";
+    else if (st.stage === "in_progress" && ang >= targetTh) st.stage = "target_reached";
+    else if (st.stage === "target_reached" && ang <= startTh && t - st.lastRep >= cool) { st.reps++; st.lastRep = t; completed = true; st.stage = "in_progress"; }
+    // evaluator priority order (src/evaluator.py:47)
+    let key = "ready", status = "good", score = 100;
+    const inRange = ang >= 85 && ang <= 175;
+    if (completed) { key = "completed"; score = 100; }
+    else if (vel > maxV) { key = "too_fast"; status = "warning"; score = 65; }
+    else if (st.stage === "target_reached") { key = "target_reached"; score = 95; }
+    else if (st.stage === "in_progress") { if (inRange) { key = "keep_going"; score = 88; } else { key = "insufficient_range"; status = "warning"; score = 75; } }
+    st.scores.push(score); if (st.scores.length > 3000) st.scores.shift();
+    if (completed) st.flash = 0.6;
+    hist.push({ t, ang, stage: st.stage, completed }); if (hist.length > 360) hist.shift();
+    return { ang, vel, key, status };
+  }
+  function draw(r) {
+    const W = cv.width, H = cv.height, pad = 34, y = a => H - pad - ((a - 70) / 115) * (H - 2 * pad);
+    const fg = cssVar("--fg"), acc = cssVar("--accent"), acc2 = cssVar("--accent-2"), mut = cssVar("--muted"), line = cssVar("--line"), good = cssVar("--good");
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = "11px Inter, sans-serif"; ctx.fillStyle = mut;
+    [80, 100, 120, 140, 160, 180].forEach(a => { ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad, y(a)); ctx.lineTo(W - 8, y(a)); ctx.stroke(); ctx.fillText(a + "°", 2, y(a) + 4); });
+    const th = (v, c, label) => { ctx.setLineDash([6, 4]); ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(pad, y(v)); ctx.lineTo(W - 8, y(v)); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = c; ctx.fillText(label, W - 110, y(v) - 5); };
+    th(+$("tg").value, good, "target " + $("tg").value + "°"); th(+$("st").value, acc2, "start " + $("st").value + "°");
+    ctx.strokeStyle = acc; ctx.lineWidth = 2.2; ctx.beginPath();
+    hist.forEach((p, i) => { const x = pad + (i / 359) * (W - pad - 8); i ? ctx.lineTo(x, y(p.ang)) : ctx.moveTo(x, y(p.ang)); }); ctx.stroke();
+    hist.forEach((p, i) => { if (p.completed) { const x = pad + (i / 359) * (W - pad - 8); ctx.fillStyle = good; ctx.beginPath(); ctx.arc(x, y(p.ang), 5, 0, Math.PI * 2); ctx.fill(); } });
+    ctx.fillStyle = fg; ctx.fillText("● = rep counted", pad + 4, 14);
+    $("rReps").textContent = st.reps; $("rAngle").textContent = r.ang.toFixed(0) + "°"; $("rVel").textContent = r.vel.toFixed(0);
+    $("rScore").textContent = (st.scores.reduce((a, b) => a + b, 0) / st.scores.length).toFixed(1) + "%";
+    document.querySelectorAll("#repStates .state").forEach(s => s.classList.toggle("on", s.dataset.s === st.stage));
+    const fb = $("repFb"); fb.textContent = FB[r.key]; fb.className = "feedback fb-" + r.status;
+  }
+  ctl.forEach(id => $(id).addEventListener("input", () => { $(id + "V").textContent = $(id).value; }));
+  $("repPlay").onclick = () => { running = !running; $("repPlay").textContent = running ? "Pause" : "Play"; };
+  $("repReset").onclick = reset;
+  let last = performance.now(), acc = 0, lastR = { ang: 92, vel: 0, key: "ready", status: "good" };
+  function loop(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    if (running) { acc += dt; while (acc >= 1 / 30) { lastR = step(1 / 30); acc -= 1 / 30; } }
+    draw(lastR); requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ---------------------------------------------------------------- problems */
+const PROBLEMS = [
+  ["Camera", "IP stream lags seconds behind the patient", "Video and angles show where the leg was 2–3 s ago, so feedback arrives late.", "Read frames continuously in a background thread, keep only the newest, set OpenCV buffer size to 1.", "src/camera.py:91, src/camera.py:135"],
+  ["Camera", "Wi-Fi drops and the stream dies", "Frozen picture forever; app needs a restart.", "On a failed read, release the capture, show a 'Waiting for camera stream' frame with the error, wait and reconnect automatically.", "src/camera.py:149, src/pipeline.py:310"],
+  ["Camera", "No camera available for a demo or exam viva", "Nothing to show.", "Built-in 'demo' source generates frames and a synthetic moving skeleton for the selected exercise.", "src/camera.py:102, src/pose_estimator.py:307"],
+  ["Camera", "Switching camera while running", "Would need a restart.", "POST /api/camera calls switch_source(), which reopens the capture in the same thread.", "app.py:93, src/camera.py:63"],
+  ["Pose", "MediaPipe has no reliable ARM64 wheel on some Jetson setups", "ImportError at start-up; app crashes.", "Backend 'auto' tries TensorRT engine → MediaPipe → YOLO PyTorch → demo and uses the first that loads.", "src/pose_estimator.py:116"],
+  ["Pose", "Models number joints differently (33 vs 17)", "Angle code would need one version per model.", "Map both onto one 12-name dictionary so later stages never know which model ran.", "src/pose_estimator.py:16, :33, :49"],
+  ["Pose", "TensorRT .engine only works on the GPU and TensorRT version it was built on", "Engine fails to load after copying to another device.", "Engine is used only if it exists and loads; otherwise the next backend is tried. Re-export with scripts/export_tensorrt.py on each device.", "src/pose_estimator.py:121, scripts/export_tensorrt.py"],
+  ["Angles", "A hidden joint gives a random position", "Wild angle jumps, fake reps.", "If any of the three points has visibility below 0.55, the angle is None and the patient hears 'Keep your full leg visible'.", "src/angle_calculator.py:76, src/evaluator.py:48"],
+  ["Angles", "Camera not exactly side-on distorts 2D angles", "A straight leg reads as 160° instead of 178°.", "Use MediaPipe's 3D world landmarks (metres) when available; fall back to 2D pixels for YOLO.", "src/angle_calculator.py:80"],
+  ["Angles", "Keypoints jitter by a few pixels every frame", "Angle flickers ±3–5°, may cross thresholds.", "Exponential moving average with α = 0.35 per joint.", "src/angle_calculator.py:90"],
+  ["Reps", "Angle hovering near one threshold counts many reps", "Rep counter jumps 1, 2, 3 while patient barely moves.", "State machine needs start → target → start (two different thresholds = hysteresis) plus a cooldown of 0.7–1.0 s.", "src/exercise_tracker.py:172"],
+  ["Reps", "Patients rest at different angles", "Someone resting at 115° never 'starts' a rep with a 105° start threshold.", "3-second calibration takes the median resting angle and sets start = rest ± 12°, kept 15° away from the target.", "src/pipeline.py:362, src/exercise_tracker.py:129"],
+  ["Reps", "Calibrating mid-session wiped the rep count", "Reps reset to 0.", "Calibration now only re-arms the state machine and keeps reps and rep analytics.", "src/exercise_tracker.py:129"],
+  ["Reps", "Mirrored camera or exercising the other leg", "Primary angle always empty; 'keep joint visible' forever.", "Side selector (right, left, both = average of visible sides); patient profile sets the affected side automatically.", "src/exercise_tracker.py:152, src/pipeline.py:165"],
+  ["Reps", "No per-rep quality information", "Only a total rep count.", "Each rep records peak angle, range of motion, duration, peak speed and left/right peaks.", "src/exercise_tracker.py:91"],
+  ["Feedback", "Movement too fast is unsafe", "Patient swings the leg.", "Angular velocity compared with max_angular_velocity_deg_per_sec; 'Move slowly' and lower score.", "src/exercise_tracker.py:186, src/evaluator.py:74"],
+  ["Feedback", "Sit-to-stand with bent hips", "Rep counts although posture is poor.", "Secondary joint (hip) must exceed its threshold when the target is reached, else a posture warning.", "src/evaluator.py:83"],
+  ["Feedback", "Correct movement still showed 'Try extending further'", "Discouraging message even when in range.", "Separate keep_going message and feedback_key for in-range movement.", "src/evaluator.py:102"],
+  ["Feedback", "Patients who do not read English", "Instructions ignored.", "Hindi and Marathi messages per exercise, sent in every telemetry update; language chosen in the dashboard.", "config/exercises.json, src/pipeline.py:428"],
+  ["Feedback", "Patient cannot watch the screen while exercising", "Missed warnings.", "Browser speech engine speaks rep numbers and warnings (throttled to every 4 s), offline.", "web/static/js/coach.js handleVoice"],
+  ["System", "Three thread types share state", "Half-updated numbers, rare crashes.", "One threading.Lock guards tracker, evaluator, telemetry and JPEG.", "src/pipeline.py:64"],
+  ["System", "Live video in a browser without extra libraries", "Would need WebRTC or WebSockets.", "MJPEG: a multipart HTTP response that keeps sending JPEGs; any <img> can show it.", "app.py:56, src/pipeline.py:551"],
+  ["System", "No internet on the clinic LAN", "Charts would not load from a CDN.", "Chart.js is bundled in web/static/js/chart.umd.min.js.", "web/templates/index.html"],
+  ["System", "Logging 30 frames per second is too much data", "Huge database.", "Telemetry logged at most every 100 ms (10 Hz) during a session.", "src/pipeline.py:392"],
+  ["System", "Page reload during a session reset everything", "Lost reps.", "coach.js reads the server's current patient from telemetry instead of re-selecting.", "web/static/js/coach.js init"],
+  ["System", "os.getloadavg missing on Windows crashed the monitor thread", "Traceback on laptop runs.", "Catch AttributeError and leave CPU % empty.", "src/jetson_monitor.py:89"],
+  ["Data", "Results lost on restart", "No history.", "SQLite file with sessions, session_frames and patients tables; CSV export per session.", "src/session_manager.py:31, :319"],
+  ["Data", "Old databases miss new columns", "SQL errors after upgrading.", "On start, PRAGMA table_info and ALTER TABLE add missing columns.", "src/session_manager.py:80"],
+  ["Data", "CSV export broke when new columns were added", "ValueError: dict contains fields not in fieldnames.", "DictWriter(extrasaction='ignore').", "src/session_manager.py:345"],
+  ["Data", "Patient names in HTML could inject scripts", "XSS in the session table.", "esc() escapes all user text before inserting into the page.", "web/static/js/dashboard.js esc"],
+  ["Personal", "Same thresholds for every patient", "Too hard for some, too easy for others.", "Per-patient threshold_overrides applied on patient select and exercise change.", "src/session_manager.py:148, src/pipeline.py:159"],
+  ["Personal", "Targets never change as the patient improves", "Plateau.", "After 3 sessions: beat target by 5° with ≥80% score → suggest +5°; never reached → suggest −5°. Physio must approve.", "src/progress.py:100, app.py:191"],
+  ["Personal", "No view of improvement over weeks", "Hard to motivate or report.", "Progress chart of best angle, ROM, consistency and target line across sessions.", "src/progress.py:80, web/static/js/coach.js loadProgress"],
+  ["AI", "Numbers are hard for patients to understand", "Patients ignore the score.", "Gemini writes a 3–5 sentence summary in the patient's language plus a clinician summary and flags.", "src/llm_coach.py:125"],
+  ["AI", "LLM might invent advice or diagnose", "Unsafe output.", "System prompt: only interpret given metrics, never diagnose, suggest consulting the physio; target changes only as suggestions.", "src/llm_coach.py:27"],
+  ["AI", "Patient privacy with a cloud API", "Name and video would leave the device.", "Context contains age, condition and metrics only; no name, no images.", "src/pipeline.py:471"],
+  ["AI", "Gemini key project suspended (403)", "Every call refused.", "Error message shown clearly; offline template report used instead. Fix: new key in a new project.", "src/llm_coach.py:90"],
+  ["AI", "Model retired (404) or overloaded (503) or slow (timeout)", "Report fails or takes 60+ s.", "Retry once, then try the next model in a list starting with the fast flash-lite model; final fallback is offline templates.", "src/llm_coach.py:21, :90"],
+  ["AI", "Repeated reports cost time and quota", "Slow re-opening.", "Successful reports are cached per language in the sessions.ai_report column.", "app.py:227, src/session_manager.py:196"],
+];
+const cats = ["All", ...new Set(PROBLEMS.map(p => p[0]))];
+let probCat = "All";
+const pf = document.getElementById("probFilters");
+pf.innerHTML = cats.map(c => `<button data-c="${c}" class="${c === "All" ? "on" : ""}">${c}</button>`).join("");
+pf.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; probCat = b.dataset.c; pf.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); renderProblems(); });
+document.getElementById("probSearch").addEventListener("input", renderProblems);
+function renderProblems() {
+  const q = document.getElementById("probSearch").value.toLowerCase();
+  const rows = PROBLEMS.map((p, i) => [i, ...p]).filter(p => (probCat === "All" || p[1] === probCat) && p.join(" ").toLowerCase().includes(q));
+  document.getElementById("probCount").textContent = `${rows.length} of ${PROBLEMS.length} problems`;
+  document.getElementById("probList").innerHTML = rows.map(([i, cat, prob, sym, fix, ref]) => `
+    <details class="prob"><summary><span class="id">P${String(i + 1).padStart(2, "0")}</span><b>${prob}</b><span class="chip">${cat}</span></summary>
+    <div class="body">
+      <div class="row"><span>If unsolved</span><span>${sym}</span></div>
+      <div class="row"><span>Fix</span><span>${fix.replace(/</g, "&lt;")}</span></div>
+      <div class="row"><span>Code</span><span style="display:flex;gap:6px;flex-wrap:wrap">${ref.split(", ").map(r => `<span class="ref">${r}</span>`).join("")}</span></div>
+    </div></details>`).join("");
+}
+renderProblems();
+
+/* ---------------------------------------------------------------- files */
+const FILES = [
+  ["app.py", 280, "Flask app factory and every HTTP route. Creates the pipeline and the LLM coach, starts the processing thread.", [["create_app", 23], ["/video_feed", 56], ["/api/telemetry", 63], ["/api/session/stop", 109], ["/api/patients POST", 154], ["/api/patients/<id>/targets", 191], ["/api/sessions/<id>/report", 227], ["parse_args", 250]], "pipeline.py, llm_coach.py, config.py"],
+  ["src/config.py", 50, "Loads .env, defines paths (data/, config/), camera source parsing, and reads config/exercises.json.", [["parse_camera_source", 24], ["load_exercise_configs", 46]], "used by almost every module"],
+  ["src/camera.py", 177, "VideoStream: threaded capture from IP camera, USB or demo, reconnect logic, FPS measurement.", [["VideoStream", 13], ["switch_source", 63], ["_open_capture", 71], ["_generate_demo_frame", 102], ["_update_loop", 135], ["read", 163]], "pipeline.py"],
+  ["src/pose_estimator.py", 428, "Landmark dataclass and PoseEstimator with MediaPipe (solutions + tasks API), YOLO (PyTorch / TensorRT) and demo backends; skeleton drawing.", [["LANDMARK_NAMES", 16], ["Landmark", 81], ["PoseEstimator.__init__ (fallback)", 99], ["_init_mediapipe", 144], ["_init_yolo", 196], ["detect", 212], ["_detect_yolo", 284], ["_detect_demo", 307], ["draw_skeleton", 398]], "pipeline.py, angle_calculator.py"],
+  ["src/angle_calculator.py", 99, "Three-point angle maths, 3D/2D selection, visibility gate and EMA smoothing.", [["JOINT_TRIPLETS", 12], ["compute_angle_3pts", 22], ["JointAngleCalculator", 45], ["calculate_all", 63]], "pipeline.py"],
+  ["src/exercise_tracker.py", 260, "Rep state machine, side selection, calibration, per-patient overrides and per-rep analytics.", [["RepUpdate", 12], ["ExerciseTracker", 29], ["apply_overrides", 57], ["_finish_rep", 91], ["set_side", 121], ["apply_calibration", 129], ["_resolve_joint_angles", 152], ["update", 172]], "pipeline.py, evaluator.py"],
+  ["src/evaluator.py", 127, "Rule-based feedback in priority order with feedback keys and a running consistency score.", [["EvaluationResult", 12], ["MovementEvaluator", 22], ["consistency_score", 42], ["evaluate", 47]], "pipeline.py"],
+  ["src/pipeline.py", 560, "RehabPipeline: owns all components, the processing loop, sessions, calibration, patients, overlay drawing, MJPEG generator and AI context builders.", [["__init__", 38], ["select_exercise", 138], ["set_patient", 165], ["start_calibration", 192], ["start_session", 205], ["stop_session", 221], ["_draw_overlay", 252], ["_process_loop", 335], ["build_session_context", 487], ["build_patient_context", 527], ["generate_mjpeg", 551]], "app.py; uses every src module"],
+  ["src/session_manager.py", 370, "SQLite storage: schema, migrations, patients, sessions, frames, AI report cache, CSV export.", [["_init_db", 31], ["create_patient", 118], ["set_patient_overrides", 148], ["patient_sessions", 164], ["save_ai_report", 196], ["save_session", 204], ["export_session_frames_csv", 319], ["export_csv", 345]], "pipeline.py, app.py"],
+  ["src/progress.py", 160, "Deterministic analytics: per-session rep summary, trend points, adaptive target suggestion.", [["summarize_reps", 17], ["progress_trend", 80], ["suggest_target", 100]], "pipeline.py"],
+  ["src/llm_coach.py", 270, "Gemini REST client (no SDK), safety prompt, fallback model chain, multilingual offline templates.", [["SYSTEM_PROMPT", 27], ["LLMCoach", 45], ["_call_gemini", 71], ["_generate", 90], ["session_report", 125], ["answer_question", 155], ["offline_report", 208]], "app.py"],
+  ["src/jetson_monitor.py", 175, "tegrastats parser and background monitor with a Linux /proc fallback.", [["parse_tegrastats_line", 20], ["_read_linux_proc_stats", 61], ["JetsonHardwareMonitor", 104], ["_run_loop", 132]], "pipeline.py"],
+  ["config/exercises.json", 120, "Thresholds and feedback (English, Hindi, Marathi) for knee extension, bicep curl and sit-to-stand.", [["knee_extension", 3], ["bicep_curl", 42], ["sit_to_stand", 81]], "config.py"],
+  ["web/templates/index.html", 260, "Dashboard layout: camera bar, video, monitor, patient and language controls, charts, AI assistant, session table, dialogs.", [], "dashboard.js, coach.js"],
+  ["web/static/js/dashboard.js", 290, "Polls telemetry, updates KPIs and charts, session table with rep quality and report buttons.", [["pollTelemetry", 140], ["loadSessions", 210]], "coach.js"],
+  ["web/static/js/coach.js", 330, "Patients, voice cues, progress chart, target approval, AI report dialog and Q&A.", [["speak", 50], ["handleVoice", 65], ["loadPatients", 120], ["loadProgress", 180], ["openReport", 270]], "dashboard.js"],
+  ["scripts/*.py", 370, "check_environment, test_camera, test_pose, export_tensorrt, benchmark_jetson: one script per bring-up phase.", [], "run by hand / VS Code launch configs"],
+  ["tests/test_core.py", 260, "12 pytest tests: angle maths, 3D preference, side switching, calibration, rep counting, storage, tegrastats, rep analytics, targets, patients, offline AI.", [], "pytest"],
+];
+document.getElementById("fileList").innerHTML = FILES.map(([f, lines, what, fns, links]) => `
+  <details class="file"><summary><code>${f}</code><span class="muted small">≈${lines} lines</span><span class="small">${what}</span></summary>
+  <div class="body">
+    ${fns.length ? `<div class="tbl"><table><thead><tr><th>Symbol</th><th>Reference</th></tr></thead><tbody>${fns.map(([n, l]) => `<tr><td><code>${n.replace(/</g, "&lt;")}</code></td><td><span class="ref">${f}:${l}</span></td></tr>`).join("")}</tbody></table></div>` : ""}
+    <p class="small muted">Talks to: ${links}</p>
+  </div></details>`).join("");
+
+const API = [
+  ["GET", "/", "Dashboard page", "app.py:44"], ["GET", "/video_feed", "MJPEG live video", "app.py:56"], ["GET", "/api/telemetry", "Live status JSON", "app.py:63"],
+  ["POST", "/api/exercise", "Choose exercise", "app.py:67"], ["POST", "/api/side", "Left / right / both", "app.py:75"], ["POST", "/api/calibrate", "3 s resting-pose calibration", "app.py:85"],
+  ["POST", "/api/camera", "Switch camera source", "app.py:93"], ["POST", "/api/session/start", "Start logging", "app.py:102"], ["POST", "/api/session/stop", "Save session", "app.py:109"],
+  ["GET", "/api/sessions", "Recent sessions", "app.py:116"], ["GET", "/api/sessions/<id>/frames", "Frame telemetry JSON", "app.py:120"], ["GET", "/api/sessions/<id>/frames.csv", "Frame telemetry CSV", "app.py:129"],
+  ["GET", "/api/sessions/export.csv", "All sessions CSV", "app.py:139"], ["GET", "/api/patients", "List patients", "app.py:150"], ["POST", "/api/patients", "Create patient", "app.py:154"],
+  ["POST", "/api/patient/select", "Activate patient", "app.py:177"], ["GET", "/api/patients/<id>/progress", "Trend + suggestions", "app.py:184"], ["POST", "/api/patients/<id>/targets", "Physio approves target", "app.py:191"],
+  ["POST", "/api/patients/<id>/ask", "AI Q&A", "app.py:211"], ["GET", "/api/ai/status", "Gemini or offline", "app.py:223"], ["POST", "/api/sessions/<id>/report", "AI session report", "app.py:227"],
+];
+document.getElementById("apiRows").innerHTML = API.map(([m, r, w, c]) => `<tr><td><span class="chip">${m}</span></td><td><code>${r.replace(/</g, "&lt;")}</code></td><td>${w}</td><td><span class="ref">${c}</span></td></tr>`).join("");
+
+/* ---------------------------------------------------------------- output annotations */
+const ANNOT = [
+  ["Header pills", "Backend, angle mode (3D/2D), FPS, camera state.", "telemetry.pose_backend, angle_mode, fps, camera_connected", "src/pipeline.py:418 → dashboard.js pollTelemetry", [12, 4]],
+  ["Live video with skeleton", "The JPEG with skeleton, joint angle label and HUD bar.", "_draw_overlay → JPEG → /video_feed", "src/pipeline.py:252, src/pipeline.py:551", [30, 40]],
+  ["Feedback banner", "One instruction in the chosen language, coloured by status, also spoken aloud.", "feedback_i18n[lang], status", "src/evaluator.py:47 → src/pipeline.py:428 → coach.js speak", [30, 82]],
+  ["KPI boxes", "Reps, current angle, consistency score, min/max angle, duration.", "RepUpdate + EvaluationResult fields", "src/exercise_tracker.py:172, src/evaluator.py:42", [75, 30]],
+  ["Last rep + target line", "Per-rep ROM, time and speed; current target marked personalized or default.", "telemetry.last_rep, target_threshold", "src/exercise_tracker.py:91, src/pipeline.py:159", [75, 60]],
+  ["Progress panel", "Patient's trend across sessions and the 💡 target suggestion with Approve button.", "/api/patients/<id>/progress", "src/progress.py:80, :100", [75, 78]],
+  ["Session table + AI report", "Saved sessions with rep quality, CSV link and the AI report dialog.", "/api/sessions, /api/sessions/<id>/report", "src/session_manager.py:304, src/llm_coach.py:125", [50, 93]],
+];
+const mockEl = document.querySelector(".mock");
+mockEl.style.position = "relative";
+ANNOT.forEach((a, i) => { const b = document.createElement("button"); b.className = "hot"; b.textContent = i + 1; b.style.left = a[4][0] + "%"; b.style.top = a[4][1] + "%"; b.setAttribute("aria-label", a[0]); b.onclick = () => showAnnot(i); mockEl.appendChild(b); });
+document.getElementById("annot").innerHTML = ANNOT.map((a, i) => `<button data-i="${i}"><span class="k">${i + 1}</span><span><b>${a[0]}</b><br><span class="small muted">${a[1]}</span></span></button>`).join("");
+document.getElementById("annot").addEventListener("click", e => { const b = e.target.closest("button"); if (b) showAnnot(+b.dataset.i); });
+function showAnnot(i) {
+  const a = ANNOT[i];
+  document.querySelectorAll("#annot button").forEach(b => b.classList.toggle("on", +b.dataset.i === i));
+  document.getElementById("annotDetail").innerHTML = `<h3>${i + 1}. ${a[0]}</h3><dl class="kv"><dt>Shows</dt><dd>${a[1]}</dd><dt>Data</dt><dd><code>${a[2].replace(/</g, "&lt;")}</code></dd><dt>Produced by</dt><dd><span class="ref">${a[3].replace(/</g, "&lt;")}</span></dd></dl>`;
+}
+showAnnot(1);
+
+const RAW = {
+  "Telemetry JSON": `GET /api/telemetry
+{
+  "exercise_key": "knee_extension", "side": "right", "reps": 5,
+  "stage": "in_progress", "primary_angle": 141.9, "angular_velocity": 100.0,
+  "angle_mode": "3D", "status": "good", "feedback_key": "keep_going",
+  "feedback_i18n": {"en": "Keep straightening your knee smoothly",
+                    "hi": "घुटने को धीरे-धीरे सीधा करते रहें",
+                    "mr": "गुडघा हळूहळू सरळ करत राहा"},
+  "consistency_score": 89.4, "fps": 24.8, "inference_ms": 31.4,
+  "last_rep": {"rep": 5, "peak_angle": 171.2, "rom_deg": 76.4,
+               "duration_s": 3.42, "max_velocity": 92.0},
+  "target_threshold": 165.0, "patient_id": 1,
+  "hardware_stats": {"source": "tegrastats", "cpu_percent": 41.0,
+                     "gpu_percent": 63.0, "temp_c": 52.1, "power_w": 9.8}
+}`,
+  "Saved session": `POST /api/session/stop
+{"id": 3, "exercise_name": "Knee Extension", "side": "right",
+ "total_reps": 8, "duration_seconds": 60.0, "min_angle": 92.0,
+ "max_angle": 168.0, "consistency_score": 86.0, "frame_count": 598,
+ "patient_id": 1,
+ "rep_details": {"rep_count": 8, "avg_rom_deg": 70.0, "rom_variability_pct": 6.1,
+   "avg_rep_duration_s": 5.1, "best_peak_angle": 168.0, "max_velocity": 112.0,
+   "fatigue_rom_drop_pct": 12.0, "symmetry_gap_deg": null, "reps": [...]}}`,
+  "Frame CSV": `data/exports/session_3_frames.csv
+id,session_id,timestamp_utc,elapsed_s,stage,primary_angle,...,reps,consistency_score,angle_mode,feedback
+1,3,2026-11-25 10:02:11.204,0.101,ready,96.2,,,96.2,0.0,0,100.0,3D,Ready — slowly straighten your knee
+2,3,2026-11-25 10:02:11.305,0.202,in_progress,104.9,,,104.9,86.7,0,96.0,3D,Keep straightening your knee smoothly`,
+  "Target suggestion": `GET /api/patients/1/progress  → exercises.knee_extension.target_suggestion
+{"action": "increase_difficulty", "current_target": 160.0, "suggested_target": 165.0,
+ "reason": "Patient beat the 160° target by at least 5° in the last 3 sessions with good consistency."}`,
+  "AI report (Marathi)": `POST /api/sessions/3/report {"language": "mr"}   → source: gemini:gemini-3.5-flash-lite (2.0 s)
+patient_summary:
+  नमस्कार! आजच्या सत्रात तुम्ही खूप छान सराव केला आणि एकूण ८ repetitions पूर्ण केले.
+  तुमचा उजवा पाय ताणताना कमाल कोन १६८ अंश होता, जो मागील सत्रापेक्षा चांगला आहे. …
+next_session_tip:
+  पुढील सत्रात पाय सरळ करताना थोडे अधिक लक्ष द्या आणि प्रत्येक हालचाल संथ ठेवा.
+clinician_summary: ["Achieved an average ROM of 79.8 degrees …", …]
+flags: []`,
+  "Offline fallback": `Gemini unavailable → src/llm_coach.py:208 offline_report (hi)
+आपने 7 सेकंड में Knee Extension के 1 दोहराव पूरे किए। आपका सबसे अच्छा कोण 175.8° रहा
+और गति की स्थिरता 92% रही। यह पिछले सत्र जितना ही है — ऐसे ही जारी रखें!
+ai_error: "HTTP 403: Permission denied: Consumer 'projects/…' has been suspended."`,
+};
+const rawTabs = document.getElementById("rawTabs");
+rawTabs.innerHTML = Object.keys(RAW).map((k, i) => `<button class="${i ? "" : "on"}" data-k="${k}">${k}</button>`).join("");
+rawTabs.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; rawTabs.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); document.getElementById("rawBody").textContent = RAW[b.dataset.k]; });
+document.getElementById("rawBody").textContent = RAW["Telemetry JSON"];
+
+/* ---------------------------------------------------------------- edge chapter */
+const edgeTabs = document.getElementById("edgeTabs");
+edgeTabs.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  edgeTabs.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll(".edge-pane").forEach(p => p.hidden = p.dataset.e !== b.dataset.e);
+});
+
+function bars(el, rows, unit, max) {
+  const m = max || Math.max(...rows.map(r => r.total ?? r.v));
+  el.innerHTML = rows.map(r => {
+    const segs = r.segs || [{ v: r.v, c: r.c || "var(--accent)", l: "" }];
+    const tot = segs.reduce((a, s) => a + s.v, 0);
+    return `<div style="display:grid;grid-template-columns:minmax(110px,180px) minmax(0,1fr) 70px;gap:10px;align-items:center">
+      <span class="small"><b>${r.label}</b></span>
+      <div style="display:flex;height:20px;background:var(--surface-2);border-radius:5px;overflow:hidden">${segs.map(s => `<i title="${s.l}: ${s.v.toFixed(1)} ${unit}" style="width:${(s.v / m) * 100}%;background:${s.c}"></i>`).join("")}</div>
+      <span class="mono small" style="text-align:right">${tot.toFixed(tot < 10 ? 2 : 0)} ${unit}</span></div>`;
+  }).join("");
+}
+
+function updateLatency() {
+  const g = id => +document.getElementById(id).value;
+  ["rtt", "inf", "up", "cinf"].forEach(id => document.getElementById(id + "V").textContent = g(id));
+  const capture = 33, render = 15, enc = 5;
+  const upload = (45 * 8) / (g("up") * 1000) * 1000; // 45 KB frame at uplink Mbps -> ms
+  const edge = [{ v: capture, c: "var(--muted)", l: "capture" }, { v: g("inf") + 6, c: "var(--accent)", l: "inference + angles" }, { v: render, c: "var(--accent-2)", l: "display" }];
+  const cloud = [{ v: capture, c: "var(--muted)", l: "capture" }, { v: enc, c: "var(--line)", l: "encode" }, { v: upload, c: "var(--warn)", l: "upload" }, { v: g("rtt"), c: "var(--bad)", l: "network RTT" }, { v: g("cinf") + 6, c: "var(--accent)", l: "cloud inference" }, { v: render, c: "var(--accent-2)", l: "display" }];
+  const tot = a => a.reduce((s, x) => s + x.v, 0);
+  bars(document.getElementById("latBars"), [{ label: "Edge (Jetson)", segs: edge, total: tot(edge) }, { label: "Cloud GPU", segs: cloud, total: tot(cloud) }], "ms", Math.max(tot(edge), tot(cloud), 100));
+  document.getElementById("latBars").insertAdjacentHTML("beforeend", `<p class="small muted">Segments: grey capture · teal inference · amber upload · red network · orange display. Under the 100 ms line, feedback feels instant.</p>`);
+}
+["rtt", "inf", "up", "cinf"].forEach(id => document.getElementById(id).addEventListener("input", updateLatency));
+updateLatency();
+
+function updateBreakEven() {
+  const h = +document.getElementById("hpd").value, p = +document.getElementById("cph").value;
+  document.getElementById("hpdV").textContent = h; document.getElementById("cphV").textContent = p.toFixed(3);
+  const hours = 249 / p, days = hours / h;
+  document.getElementById("beText").innerHTML = `The $249 Jetson costs the same as <b>${hours.toFixed(0)} cloud GPU hours</b>. At ${h} h/day that is <b>${days.toFixed(0)} days</b> (≈${(days / 30).toFixed(1)} months). After that, every hour on the Jetson is almost free.`;
+}
+["hpd", "cph"].forEach(id => document.getElementById(id).addEventListener("input", updateBreakEven));
+updateBreakEven();
+
+bars(document.getElementById("fmtBars"), [
+  { label: "PyTorch", v: 15.6, c: "var(--muted)" }, { label: "TensorRT FP32", v: 7.53, c: "var(--accent-2)" },
+  { label: "TensorRT FP16 ✓", v: 4.57, c: "var(--accent)" }, { label: "TensorRT INT8", v: 3.80, c: "var(--warn)" },
+], "ms");
+
+document.getElementById("thermo").innerHTML = (() => {
+  const marks = [[50, "typical load", "var(--good)"], [99, "SW throttle", "var(--warn)"], [103, "HW throttle", "var(--bad)"], [105, "shutdown", "var(--bad)"]];
+  const x = t => ((t - 20) / 90) * 100;
+  return `<div style="position:relative;height:56px;margin:14px 6px 4px"><div style="position:absolute;top:22px;left:0;right:0;height:10px;border-radius:99px;background:linear-gradient(90deg,var(--good),var(--warn) 85%,var(--bad))"></div>
+    ${marks.map(([t, l, c], i) => `<div style="position:absolute;left:${x(t)}%;top:${i % 2 ? 36 : 0}px;transform:translateX(-50%);font-size:.72rem;white-space:nowrap;color:${c}">${t} °C ${l}</div>`).join("")}</div>`;
+})();
+
+const ERRS = [
+  ["Thermal", "FPS slowly drops after 10–20 minutes", "Clocks reduced near 99 °C; fan in quiet profile.", "tegrastats (cpu@ / gpu@ temps), cat /sys/devices/virtual/thermal/thermal_zone*/temp", "sudo jetson_clocks --fan, use the dev-kit heatsink, keep vents clear, consider 15 W mode for long sessions."],
+  ["Power", "'System throttled due to over-current' and sudden FPS halving", "Average or peak power above the mode's budget, or input under-voltage from a weak supply.", "grep \"\" /sys/class/hwmon/hwmon*/oc*_event_cnt", "Use the official 19 V barrel supply, avoid USB-C phone chargers, lower the power mode, or cap FPS."],
+  ["Power", "Power mode will not change or resets after reboot", "jetson_clocks was run (locks mode until reboot); missing -super flash config for MAXN SUPER.", "sudo nvpmodel -q", "Reboot before switching; flash JetPack 6.2 with the jetson-orin-nano-devkit-super config; set the mode at boot via a systemd unit."],
+  ["Memory", "Process killed with no Python error (OOM killer)", "8 GB is shared by CPU and GPU; desktop GUI, PyTorch and a local LLM together exceed it.", "free -h, dmesg | grep -i kill", "Boot headless (frees ≈800 MB), disable zram and add a 16 GB swap file on NVMe, use TensorRT instead of PyTorch, keep any local LLM under 4 B parameters."],
+  ["MediaPipe", "MediaPipe runs at only a few FPS on the Jetson", "The aarch64 pip wheel is CPU-only; the TFLite GPU delegate is not supported on Linux ARM64.", "Check inference_ms in the dashboard header", "Use YOLO-pose with TensorRT FP16 (POSE_BACKEND=yolo), or accept MediaPipe Lite on CPU. Building MediaPipe from source with GPU is advanced."],
+  ["MediaPipe", "pip install mediapipe fails", "No wheel for the Python version or older JetPack.", "pip download mediapipe --no-deps", "Use JetPack 6 (Python 3.10) or newer; the app falls back automatically to YOLO or demo."],
+  ["TensorRT", "'Serialization assertion … Version tag does not match' or 'magicTag' when loading .engine", "Engines are tied to the TensorRT version and GPU (sm_87) that built them. The engine in models/ was built elsewhere.", "Error at start-up in the console", "Rebuild on the device: python3 scripts/export_tensorrt.py --model yolov8n-pose.pt --imgsz 640. Rebuild after every JetPack upgrade."],
+  ["TensorRT", "pip install tensorrt fails on the Jetson", "TensorRT ships with JetPack, not PyPI, for ARM64.", "python3 -c 'import tensorrt'", "Create the venv with --system-site-packages so JetPack's TensorRT is visible. Conda environments cannot see it."],
+  ["TensorRT", "INT8 export errors or bad keypoints", "INT8 broken on TensorRT 10.3 (JetPack 6); pose accuracy collapses in INT8.", "Compare pose output with FP16", "Stay with FP16 (export default in this project). INT8 needs TensorRT 10.7+ and ≥ 500 calibration images."],
+  ["PyTorch", "torch.cuda.is_available() is False", "PyPI / pytorch.org ARM64 wheels have no CUDA.", "python3 -c 'import torch;print(torch.cuda.is_available())'", "Install NVIDIA's Jetson wheels for your JetPack (cp310 for JetPack 6) as listed in the Ultralytics Jetson guide."],
+  ["PyTorch", "'numpy.core.multiarray failed to import' / ABI errors", "NVIDIA's JetPack 6 wheels were built against NumPy 1.x.", "pip show numpy", "Keep numpy<2 (already pinned in requirements.txt)."],
+  ["OpenCV", "RTSP fails or GStreamer pipeline not found", "pip opencv-python has no GStreamer and shadows JetPack's OpenCV.", "python3 -c 'import cv2;print(cv2.getBuildInformation())' | grep -i gstreamer", "pip uninstall opencv-python; use apt python3-opencv via --system-site-packages."],
+  ["Camera", "IP camera video 1–3 s behind", "Decoder and network buffers queue frames.", "Wave a hand and compare with the dashboard", "Already mitigated (BUFFERSIZE=1, newest-frame thread). For RTSP, use the GStreamer pipeline: rtspsrc latency=0 ! rtph264depay ! h264parse ! nvv4l2decoder ! nvvidconv ! video/x-raw,format=BGRx ! videoconvert ! appsink drop=true max-buffers=1 sync=false"],
+  ["Camera", "Stream drops every few minutes", "Phone sleeps, Wi-Fi power saving, 2.4 GHz interference.", "Dashboard shows 'Lost stream … reconnecting'", "Keep the phone plugged in with screen-on, use 5 GHz Wi-Fi or a phone hotspot, lower stream resolution; reconnect is automatic."],
+  ["Camera", "USB webcam not found", "/dev/video0 permission or wrong index.", "ls -l /dev/video*; groups", "sudo usermod -aG video $USER, then log out and in; try CAMERA_SOURCE=1."],
+  ["Storage", "Jetson will not boot after power loss", "microSD file-system corruption.", "Boot log / fsck errors", "Boot from NVMe, use a UPS or proper shutdown, enable SQLite WAL mode, back up data/rehab_sessions.db."],
+  ["Python", "'externally-managed-environment' on pip install", "PEP 668 (Ubuntu 23.04+, i.e. JetPack 7).", "Error text from pip", "Always use the project .venv (setup_jetson.sh does this)."],
+  ["Python", "Wrong Python for the wheels", "JetPack 5 = Python 3.8, JetPack 6 = 3.10, JetPack 7.2 = 3.12.", "python3 --version; cat /etc/nv_tegra_release", "Match wheels to the JetPack's Python; do not install another Python for CUDA work."],
+  ["App", "Model loaded twice, memory doubles", "Flask debug reloader starts a second process.", "Two python processes in htop", "Already handled: app.run(..., use_reloader=False)."],
+  ["App", "Dashboard 'Waiting for camera stream' forever", "Wrong URL or phone and Jetson on different networks.", "curl -I http://PHONE_IP:8080/video", "Put both on the same Wi-Fi, check the URL ends in /video, disable phone VPN."],
+];
+const errCats = ["All", ...new Set(ERRS.map(e => e[0]))];
+let errCat = "All";
+const ef = document.getElementById("errFilters");
+ef.innerHTML = errCats.map(c => `<button data-c="${c}" class="${c === "All" ? "on" : ""}">${c}</button>`).join("");
+ef.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; errCat = b.dataset.c; ef.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); renderErrs(); });
+function renderErrs() {
+  document.getElementById("errList").innerHTML = ERRS.map((e, i) => [i, ...e]).filter(e => errCat === "All" || e[1] === errCat).map(([i, cat, sym, cause, detect, fix]) => `
+    <details class="prob"><summary><span class="id">E${String(i + 1).padStart(2, "0")}</span><b>${sym}</b><span class="chip">${cat}</span></summary>
+    <div class="body">
+      <div class="row"><span>Cause</span><span>${cause}</span></div>
+      <div class="row"><span>Detect</span><span><code>${detect.replace(/</g, "&lt;")}</code></span></div>
+      <div class="row"><span>Fix</span><span>${fix.replace(/</g, "&lt;")}</span></div>
+    </div></details>`).join("");
+}
+renderErrs();
+
+const CK = [
+  "Flash JetPack 6.2+ on NVMe (not microSD) with the -super config",
+  "sudo nvpmodel -m 2 (or -m 0 for 15 W) and sudo jetson_clocks --fan",
+  "Use the official barrel-jack power supply",
+  "Boot headless; add 16 GB NVMe swap; disable zram",
+  "Run ./setup_jetson.sh (venv with --system-site-packages)",
+  "Install NVIDIA's PyTorch wheel; keep numpy<2; remove pip opencv-python",
+  "python3 scripts/check_environment.py passes",
+  "Rebuild the TensorRT FP16 engine on this device (scripts/export_tensorrt.py)",
+  "Set POSE_BACKEND=yolo in .env",
+  "python3 scripts/test_camera.py with the phone URL on 5 GHz Wi-Fi",
+  "python3 scripts/benchmark_jetson.py: note FPS and inference ms",
+  "Run 20 minutes: watch tegrastats temps and oc*_event_cnt",
+  "Validate angles against a goniometer (Angle accuracy tab)",
+  "Set GEMINI_API_KEY (or run offline) and back up data/ regularly",
+];
+const ckKey = "rehab-guide-deploy";
+let ckState = {};
+try { ckState = JSON.parse(localStorage.getItem(ckKey) || "{}"); } catch (e) { ckState = {}; }
+function renderCk() {
+  const l = document.getElementById("cklist");
+  l.innerHTML = CK.map((t, i) => `<li><input type="checkbox" id="ck${i}" ${ckState[i] ? "checked" : ""}><label for="ck${i}">${t}</label></li>`).join("");
+  document.getElementById("ckbar").style.width = `${(CK.filter((_, i) => ckState[i]).length / CK.length) * 100}%`;
+  l.querySelectorAll("input").forEach((el, i) => el.addEventListener("change", () => { ckState[i] = el.checked; try { localStorage.setItem(ckKey, JSON.stringify(ckState)); } catch (e) {} renderCk(); }));
+}
+renderCk();
+
+/* ---------------------------------------------------------------- router */
+const VIEWS = [...document.querySelectorAll("section.view")].map(s => s.dataset.view);
+function route() {
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "basics";
+  document.querySelectorAll("section.view").forEach(s => s.hidden = s.dataset.view !== v);
+  document.querySelectorAll("nav.tabs a").forEach(a => a.setAttribute("aria-current", a.getAttribute("href") === "#" + v ? "page" : "false"));
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+route();
+</script>

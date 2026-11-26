@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Rehab Dashboard (Flask App)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/app.py",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Phase 1: Check Jetson Environment",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/check_environment.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Phase 2: Test IP / USB Camera",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/test_camera.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Phase 3 & 4: Test Pose & Joint Angles",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/test_pose.py",
+      "console": "integratedTerminal"
+    }
+  ]
+}

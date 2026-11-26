@@ -1,0 +1,12 @@
+# Optional fallback / TensorRT-accelerated pose estimation dependencies
+# Use this if MediaPipe installation or CPU performance on Jetson Orin Nano
+# does not meet your real-time FPS targets.
+#
+# Install after core requirements.txt:
+#   pip install -r requirements-tensorrt.txt
+#
+# Then export YOLOv8n-pose to a Jetson TensorRT engine:
+#   yolo export model=yolov8n-pose.pt format=engine half=True imgsz=640
+# And set POSE_BACKEND=yolo in .env
+
+ultralytics>=8.2.0

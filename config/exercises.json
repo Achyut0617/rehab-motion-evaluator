@@ -1,0 +1,128 @@
+{
+  "_note": "Configurable exercise thresholds. A qualified physiotherapist should review and adjust these ranges for each patient rather than treating them as universal medical standards. Per-patient overrides approved in the dashboard are stored in the patients table. feedback_hi / feedback_mr are Hindi / Marathi voice + on-screen cues.",
+  "knee_extension": {
+    "display_name": "Knee Extension",
+    "primary_joint": "knee",
+    "side": "right",
+    "direction": "extend",
+    "start_angle_threshold": 105.0,
+    "target_angle_threshold": 160.0,
+    "ideal_min_angle": 85.0,
+    "ideal_max_angle": 175.0,
+    "min_visibility": 0.55,
+    "cooldown_seconds": 0.8,
+    "max_angular_velocity_deg_per_sec": 180.0,
+    "feedback": {
+      "completed": "Movement completed",
+      "target_reached": "Good, now lower your leg slowly",
+      "keep_going": "Keep straightening your knee smoothly",
+      "insufficient_range": "Try extending your knee further",
+      "low_visibility": "Keep your full leg visible in the frame",
+      "too_fast": "Move slowly and with control",
+      "ready": "Ready — slowly straighten your knee"
+    },
+    "feedback_hi": {
+      "completed": "बहुत अच्छा, एक दोहराव पूरा हुआ",
+      "target_reached": "अच्छा, अब पैर धीरे-धीरे नीचे करें",
+      "keep_going": "घुटने को धीरे-धीरे सीधा करते रहें",
+      "insufficient_range": "घुटने को थोड़ा और सीधा करने की कोशिश करें",
+      "low_visibility": "पूरा पैर कैमरे में दिखना चाहिए",
+      "too_fast": "धीरे और नियंत्रण के साथ करें",
+      "ready": "तैयार — धीरे-धीरे घुटना सीधा करें"
+    },
+    "feedback_mr": {
+      "completed": "छान, एक पुनरावृत्ती पूर्ण झाली",
+      "target_reached": "छान, आता पाय हळूहळू खाली करा",
+      "keep_going": "गुडघा हळूहळू सरळ करत राहा",
+      "insufficient_range": "गुडघा अजून थोडा सरळ करण्याचा प्रयत्न करा",
+      "low_visibility": "संपूर्ण पाय कॅमेऱ्यात दिसला पाहिजे",
+      "too_fast": "हळू आणि नियंत्रणाने करा",
+      "ready": "तयार — हळूहळू गुडघा सरळ करा"
+    }
+  },
+  "bicep_curl": {
+    "display_name": "Bicep Curl",
+    "primary_joint": "elbow",
+    "side": "right",
+    "direction": "flex",
+    "start_angle_threshold": 145.0,
+    "target_angle_threshold": 55.0,
+    "ideal_min_angle": 35.0,
+    "ideal_max_angle": 170.0,
+    "min_visibility": 0.55,
+    "cooldown_seconds": 0.7,
+    "max_angular_velocity_deg_per_sec": 200.0,
+    "feedback": {
+      "completed": "Movement completed",
+      "target_reached": "Good, now lower your arm slowly",
+      "keep_going": "Keep curling smoothly",
+      "insufficient_range": "Try curling your arm higher toward your shoulder",
+      "low_visibility": "Keep your shoulder, elbow, and wrist clearly visible",
+      "too_fast": "Move slowly and avoid swinging your arm",
+      "ready": "Ready — bend your elbow to curl upward"
+    },
+    "feedback_hi": {
+      "completed": "बहुत अच्छा, एक दोहराव पूरा हुआ",
+      "target_reached": "अच्छा, अब हाथ धीरे-धीरे नीचे करें",
+      "keep_going": "धीरे-धीरे हाथ मोड़ते रहें",
+      "insufficient_range": "हाथ को कंधे की ओर थोड़ा और ऊपर लाएँ",
+      "low_visibility": "कंधा, कोहनी और कलाई साफ़ दिखनी चाहिए",
+      "too_fast": "धीरे करें, हाथ को झुलाएँ नहीं",
+      "ready": "तैयार — कोहनी मोड़कर हाथ ऊपर लाएँ"
+    },
+    "feedback_mr": {
+      "completed": "छान, एक पुनरावृत्ती पूर्ण झाली",
+      "target_reached": "छान, आता हात हळूहळू खाली करा",
+      "keep_going": "हळूहळू हात वाकवत राहा",
+      "insufficient_range": "हात खांद्याकडे अजून थोडा वर आणा",
+      "low_visibility": "खांदा, कोपर आणि मनगट स्पष्ट दिसले पाहिजे",
+      "too_fast": "हळू करा, हात झुलवू नका",
+      "ready": "तयार — कोपर वाकवून हात वर आणा"
+    }
+  },
+  "sit_to_stand": {
+    "display_name": "Sit-to-Stand",
+    "primary_joint": "knee",
+    "secondary_joint": "hip",
+    "side": "right",
+    "direction": "extend",
+    "start_angle_threshold": 105.0,
+    "target_angle_threshold": 162.0,
+    "secondary_target_threshold": 155.0,
+    "ideal_min_angle": 80.0,
+    "ideal_max_angle": 175.0,
+    "min_visibility": 0.55,
+    "cooldown_seconds": 1.0,
+    "max_angular_velocity_deg_per_sec": 160.0,
+    "feedback": {
+      "completed": "Movement completed",
+      "target_reached": "Good, now sit down slowly",
+      "keep_going": "Keep standing up smoothly",
+      "insufficient_range": "Stand up fully and straighten your hips and knees",
+      "posture_warning": "Maintain your posture and straighten your torso",
+      "low_visibility": "Step back so your hips, knees, and ankles stay in view",
+      "too_fast": "Move slowly when standing and sitting",
+      "ready": "Ready — stand up smoothly from seated position"
+    },
+    "feedback_hi": {
+      "completed": "बहुत अच्छा, एक दोहराव पूरा हुआ",
+      "target_reached": "अच्छा, अब धीरे-धीरे बैठ जाएँ",
+      "keep_going": "धीरे-धीरे खड़े होते रहें",
+      "insufficient_range": "पूरी तरह खड़े हों, कूल्हे और घुटने सीधे करें",
+      "posture_warning": "शरीर सीधा रखें, आगे न झुकें",
+      "low_visibility": "थोड़ा पीछे हटें ताकि कूल्हे, घुटने और टखने दिखें",
+      "too_fast": "खड़े होते और बैठते समय धीरे करें",
+      "ready": "तैयार — कुर्सी से धीरे-धीरे खड़े हों"
+    },
+    "feedback_mr": {
+      "completed": "छान, एक पुनरावृत्ती पूर्ण झाली",
+      "target_reached": "छान, आता हळूहळू खाली बसा",
+      "keep_going": "हळूहळू उभे राहत राहा",
+      "insufficient_range": "पूर्ण उभे राहा, कंबर आणि गुडघे सरळ करा",
+      "posture_warning": "शरीर सरळ ठेवा, पुढे वाकू नका",
+      "low_visibility": "थोडे मागे सरका म्हणजे कंबर, गुडघे आणि घोटे दिसतील",
+      "too_fast": "उभे राहताना आणि बसताना हळू करा",
+      "ready": "तयार — खुर्चीतून हळूहळू उभे राहा"
+    }
+  }
+}

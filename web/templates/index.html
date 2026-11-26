@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Rehabilitation Motion Evaluator — Jetson Orin Nano</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <!-- Bundled locally for 100% offline LAN operation -->
+  <script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <h1>Rehab Motion Evaluator</h1>
+      <span class="badge">Edge AI • NVIDIA Jetson Orin Nano</span>
+    </div>
+    <div class="system-pills">
+      <span id="pill-backend" class="pill">Backend: --</span>
+      <span id="pill-angle-mode" class="pill">Angles: --</span>
+      <span id="pill-fps" class="pill">FPS: --</span>
+      <span id="pill-latency" class="pill">Inference: -- ms</span>
+      <span id="pill-cam" class="pill pill-warn">Camera: Connecting...</span>
+    </div>
+  </header>
+
+  <!-- Live Jetson Hardware Telemetry Strip (tegrastats) -->
+  <section class="hw-strip">
+    <div class="hw-strip-inner">
+      <span class="hw-title">Jetson Hardware (<span id="hw-source">--</span>):</span>
+      <span id="hw-cpu" class="hw-pill">CPU: --%</span>
+      <span id="hw-gpu" class="hw-pill">GPU: --%</span>
+      <span id="hw-ram" class="hw-pill">RAM: --</span>
+      <span id="hw-temp" class="hw-pill">Temp: --°C</span>
+      <span id="hw-power" class="hw-pill">Power: -- W</span>
+    </div>
+  </section>
+
+  <main class="container">
+    <!-- Camera Connection Bar (Android IP Camera / USB / Demo) -->
+    <section class="card camera-bar">
+      <div class="camera-bar-row">
+        <label for="camera-input"><strong>Camera Source</strong> (Android IP Webcam URL, USB index <code>0</code>, or <code>demo</code>):</label>
+        <input
+          id="camera-input"
+          type="text"
+          value="{{ initial_camera }}"
+          placeholder="http://192.168.1.100:8080/video"
+        />
+        <button id="btn-connect-camera" class="btn btn-primary">Connect Camera</button>
+        <button id="btn-demo-mode" class="btn btn-secondary">Demo Mode</button>
+      </div>
+      <p id="camera-error" class="error-text" hidden></p>
+    </section>
+
+    <!-- Primary Workspace: Live Video + Exercise Monitoring Panel -->
+    <section class="grid-main">
+      <!-- Live Video Section -->
+      <div class="card video-card">
+        <div class="card-header">
+          <h2>Live Pose &amp; Joint Tracking</h2>
+          <span id="stage-badge" class="status-badge status-idle">READY</span>
+        </div>
+        <div class="video-wrapper">
+          <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Live rehabilitation video feed" />
+        </div>
+        <div id="feedback-banner" class="feedback-banner status-idle">
+          Ready — select an exercise and start a session.
+        </div>
+      </div>
+
+      <!-- Exercise Monitoring Panel -->
+      <div class="card monitor-card">
+        <h2>Exercise Monitor</h2>
+
+        <div class="control-row-2">
+          <div class="control-group">
+            <label for="exercise-select">Select Exercise</label>
+            <select id="exercise-select">
+              {% for ex in exercises %}
+                <option value="{{ ex.key }}">{{ ex.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="side-select">Tracked Side</label>
+            <select id="side-select">
+              <option value="right" selected>Right</option>
+              <option value="left">Left</option>
+              <option value="both">Both (Avg)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-row-2">
+          <div class="control-group">
+            <label for="patient-select">Patient Profile</label>
+            <div class="inline-row">
+              <select id="patient-select">
+                <option value="">— Guest (no profile) —</option>
+              </select>
+              <button id="btn-new-patient" class="btn btn-secondary btn-sm" title="Add patient">+ New</button>
+            </div>
+          </div>
+          <div class="control-group" id="guest-label-group">
+            <label for="patient-label">Guest Label</label>
+            <input id="patient-label" type="text" placeholder="e.g., Walk-in patient" value="Guest" />
+          </div>
+        </div>
+
+        <div class="control-row-2">
+          <div class="control-group">
+            <label for="language-select">Feedback Language</label>
+            <select id="language-select">
+              <option value="en">English</option>
+              <option value="hi">हिन्दी (Hindi)</option>
+              <option value="mr">मराठी (Marathi)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="voice-toggle">Voice Cues</label>
+            <label class="toggle"><input id="voice-toggle" type="checkbox" checked /> Speak feedback &amp; rep count</label>
+          </div>
+        </div>
+
+        <p class="target-line">Target angle: <strong id="target-angle">--°</strong> · Start: <span id="start-angle">--°</span> <span id="target-source" class="muted"></span></p>
+
+        <div class="calibration-bar">
+          <button id="btn-calibrate" class="btn btn-secondary btn-sm">Calibrate Rest Pose (3s)</button>
+          <span id="calibration-status" class="cal-status">Not calibrated</span>
+        </div>
+
+        <div class="session-actions">
+          <button id="btn-start-session" class="btn btn-success">Start Session</button>
+          <button id="btn-stop-session" class="btn btn-danger" disabled>Stop &amp; Save</button>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <span class="kpi-label">Repetitions</span>
+            <span id="kpi-reps" class="kpi-value">0</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Primary Angle</span>
+            <span id="kpi-angle" class="kpi-value">--°</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Consistency Score</span>
+            <span id="kpi-score" class="kpi-value">0%</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Duration / Frames</span>
+            <span id="kpi-duration" class="kpi-value">0.0s</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Min Observed</span>
+            <span id="kpi-min-angle" class="kpi-value">--°</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Max Observed</span>
+            <span id="kpi-max-angle" class="kpi-value">--°</span>
+          </div>
+        </div>
+        <div class="last-rep" id="last-rep">Last rep: --</div>
+      </div>
+    </section>
+
+    <!-- Analytics Section: Live Angle Chart + Session Comparison -->
+    <section class="grid-charts">
+      <div class="card chart-card">
+        <div class="card-header">
+          <h2>Live Joint Angle Trajectory (°)</h2>
+        </div>
+        <div class="chart-container">
+          <canvas id="liveAngleChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card chart-card">
+        <div class="card-header">
+          <h2>Recent Session Performance</h2>
+          <a href="/api/sessions/export.csv" class="btn btn-secondary btn-sm">Export Summary CSV</a>
+        </div>
+        <div class="chart-container">
+          <canvas id="sessionHistoryChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Patient Progress + AI Coach -->
+    <section class="grid-charts">
+      <div class="card chart-card">
+        <div class="card-header">
+          <h2>Patient Progress — <span id="progress-title">select a patient</span></h2>
+        </div>
+        <div class="chart-container">
+          <canvas id="progressChart"></canvas>
+        </div>
+        <div id="target-suggestion" class="suggestion" hidden></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>AI Physio Assistant <span id="ai-status" class="pill">AI: --</span></h2>
+        </div>
+        <p class="muted small">Ask about the selected patient's progress. Answers use only recorded session metrics. Patient names are never sent to the AI.</p>
+        <div class="inline-row">
+          <input id="ask-input" type="text" placeholder="e.g., Is the knee range improving? Any concerns?" />
+          <button id="btn-ask" class="btn btn-primary btn-sm">Ask</button>
+        </div>
+        <div id="ask-answer" class="ai-answer muted">No question asked yet.</div>
+      </div>
+    </section>
+
+    <!-- Session History Table -->
+    <section class="card">
+      <div class="card-header">
+        <h2>Recorded Session Reports (SQLite Local Storage)</h2>
+        <button id="btn-refresh-sessions" class="btn btn-secondary btn-sm">Refresh</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp (UTC)</th>
+              <th>Label</th>
+              <th>Exercise (Side)</th>
+              <th>Reps</th>
+              <th>Duration (s)</th>
+              <th>Min / Max Angle</th>
+              <th>Consistency</th>
+              <th>Rep Quality</th>
+              <th>Frame Telemetry</th>
+              <th>AI Report</th>
+            </tr>
+          </thead>
+          <tbody id="sessions-tbody">
+            <tr><td colspan="10" class="empty-row">No sessions recorded yet. Click "Start Session" then "Stop &amp; Save".</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="disclaimer">
+      <strong>Prototype Notice:</strong> This system is an AI-assisted rehabilitation exercise monitoring prototype running 100% locally on the NVIDIA Jetson Orin Nano (offline-capable). Movement consistency scores are computational indicators, not clinically validated medical assessments. Exercise thresholds in <code>config/exercises.json</code> should be reviewed by a qualified physiotherapist. No raw video is stored.
+    </footer>
+  </main>
+
+  <!-- New patient dialog -->
+  <dialog id="patient-dialog" class="modal">
+    <form id="patient-form" method="dialog">
+      <h2>New Patient Profile</h2>
+      <div class="control-group"><label>Name *</label><input name="name" required /></div>
+      <div class="control-row-2">
+        <div class="control-group"><label>Age</label><input name="age" type="number" min="1" max="120" /></div>
+        <div class="control-group"><label>Affected Side</label>
+          <select name="affected_side"><option value="right">Right</option><option value="left">Left</option><option value="both">Both</option></select>
+        </div>
+      </div>
+      <div class="control-group"><label>Condition</label><input name="condition" placeholder="e.g., Post-TKR right knee, week 3" /></div>
+      <div class="control-group"><label>Preferred Language</label>
+        <select name="language"><option value="en">English</option><option value="hi">Hindi</option><option value="mr">Marathi</option></select>
+      </div>
+      <div class="control-group"><label>Physio Notes</label><textarea name="notes" rows="2"></textarea></div>
+      <div class="session-actions">
+        <button type="submit" class="btn btn-success">Save</button>
+        <button type="button" id="btn-cancel-patient" class="btn btn-secondary">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- AI report dialog -->
+  <dialog id="report-dialog" class="modal modal-wide">
+    <div class="card-header">
+      <h2>Session Report <span id="report-meta" class="muted small"></span></h2>
+      <div class="inline-row">
+        <select id="report-language">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="mr">मराठी</option>
+        </select>
+        <button id="btn-speak-report" class="btn btn-secondary btn-sm">🔊 Read aloud</button>
+        <button id="btn-close-report" class="btn btn-secondary btn-sm">Close</button>
+      </div>
+    </div>
+    <div id="report-body" class="report-body">Generating…</div>
+  </dialog>
+
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/coach.js') }}"></script>
+</body>
+</html>

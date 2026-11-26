@@ -1,0 +1,24 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.env
+data/*.db
+data/*.csv
+models/*.task
+models/*.pt
+models/*.engine
+*.log
+.DS_Store
+
+# Model weights (large, regenerable: ultralytics auto-downloads .pt; run scripts/export_tensorrt.py for .engine)
+*.pt
+*.onnx
+*.engine
+models/*
+!models/.gitkeep
+
+# Local session data / exports
+data/exports/

@@ -1,0 +1,29 @@
+# Core dependencies for Patient Rehabilitation Motion Evaluator
+# Target platform: NVIDIA Jetson Orin Nano (ARM64 / JetPack 5.x or 6.x)
+#
+# Install inside a virtual environment:
+#   python3 -m venv .venv --system-site-packages
+#   source .venv/bin/activate
+#   pip install --upgrade pip
+#   pip install -r requirements.txt
+
+# Web backend
+Flask>=3.0.0,<4.0.0
+
+# Numerical computing (pinned <2.0 for JetPack / MediaPipe / OpenCV compatibility)
+numpy>=1.24.0,<2.0.0
+
+# Computer vision & IP camera streaming
+# Note: If your Jetson already has CUDA-enabled OpenCV installed via JetPack
+# and you created .venv with --system-site-packages, you may comment this line out.
+opencv-python>=4.8.0,<4.12.0
+
+# Human pose estimation (MediaPipe 3D/2D + YOLOv8-Pose / TensorRT GPU backend)
+mediapipe>=0.10.14
+ultralytics>=8.2.0
+
+# Environment variable loading (.env)
+python-dotenv>=1.0.0
+
+# Testing
+pytest>=8.0.0
