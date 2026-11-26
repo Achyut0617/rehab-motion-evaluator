@@ -16,7 +16,7 @@ numpy>=1.24.0,<2.0.0
 # Computer vision & IP camera streaming
 # Note: If your Jetson already has CUDA-enabled OpenCV installed via JetPack
 # and you created .venv with --system-site-packages, you may comment this line out.
-opencv-python>=4.8.0,<4.12.0
+opencv-python>=5.1.0.95,<5.2.0
 
 # Human pose estimation (MediaPipe 3D/2D + YOLOv8-Pose / TensorRT GPU backend)
 mediapipe>=0.10.14
