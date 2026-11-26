@@ -1,4 +1,14 @@
-# Patient Rehabilitation Motion Evaluator (Edge AI on NVIDIA Jetson Orin Nano)
+# Patient Rehabilitation Motion Evaluator
+
+**Edge-AI physiotherapy exercise monitoring on NVIDIA Jetson Orin Nano**
+
+[![CI](https://github.com/Achyut0617/rehab-motion-evaluator/actions/workflows/ci.yml/badge.svg)](https://github.com/Achyut0617/rehab-motion-evaluator/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Jetson%20Orin%20Nano-76B900.svg)
+![Pose](https://img.shields.io/badge/pose-MediaPipe%20%7C%20YOLOv8--Pose%20%7C%20TensorRT-orange.svg)
+
+**Contents:** [Capabilities](#key-capabilities) · [Architecture](#architecture) · [Quick Start](#quick-start-on-nvidia-jetson-orin-nano) · [Project Structure](#project-structure) · [API](#rest-api) · [Testing](#development--testing) · [License](#license)
 
 An offline-capable, edge-AI physiotherapy exercise monitoring prototype built for **NVIDIA Jetson Orin Nano**. It captures live video from an **Android IP Camera stream** (or USB webcam), detects body landmarks locally using [MediaPipe Pose Landmarker](https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker) (with 3D world-landmark angles and an FP16 **YOLOv8-Pose TensorRT** GPU backend), supports **left/right/both side switching** and **3-second resting-pose calibration**, streams live **`tegrastats` hardware metrics**, and logs both **session summaries and per-frame telemetry** locally in SQLite and CSV.
 
@@ -30,11 +40,35 @@ An offline-capable, edge-AI physiotherapy exercise monitoring prototype built fo
 
 ---
 
-## Quick Start in VS Code on NVIDIA Jetson Orin Nano
+## Architecture
 
-### 1. Open the Folder in VS Code
-1. Unzip `rehab-motion-evaluator.zip` on your Jetson Orin Nano.
-2. Open VS Code (`code rehab-motion-evaluator`) and open the terminal (`Ctrl + \``).
+```mermaid
+flowchart LR
+    CAM["Android IP camera / USB webcam / demo"] --> CAP["camera.py<br/>threaded capture"]
+    CAP --> POSE["pose_estimator.py<br/>MediaPipe 3D · YOLOv8-Pose · TensorRT FP16"]
+    POSE --> ANG["angle_calculator.py<br/>3D/2D joint angles + EMA"]
+    ANG --> TRK["exercise_tracker.py<br/>state machine · rep counter · calibration"]
+    TRK --> EVAL["evaluator.py<br/>feedback · consistency score"]
+    EVAL --> DB[("session_manager.py<br/>SQLite + CSV")]
+    DB --> PROG["progress.py<br/>per-rep analytics · adaptive targets"]
+    PROG --> LLM["llm_coach.py<br/>Gemini reports (optional)"]
+    EVAL --> WEB["Flask dashboard<br/>MJPEG stream · Chart.js · voice cues"]
+    MON["jetson_monitor.py<br/>tegrastats"] --> WEB
+```
+
+Supported exercises (configured in `config/exercises.json`): **knee extension**, **bicep curl**, **sit-to-stand**.
+
+---
+
+## Quick Start on NVIDIA Jetson Orin Nano
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Achyut0617/rehab-motion-evaluator.git
+cd rehab-motion-evaluator
+code .   # optional: open in VS Code
+```
+The repository ships with `yolov8n-pose.pt` and `yolov8n-pose.onnx`. A prebuilt `models/yolov8n-pose.engine` is included too, but TensorRT engines are tied to the exact JetPack/TensorRT version, so re-export it (step 3) if it fails to load.
 
 ### 2. Create Virtual Environment & Install `requirements.txt`
 Ubuntu 24.04 (Python 3.12) enforces PEP 668, so always install inside `.venv`:
@@ -69,3 +103,48 @@ source .venv/bin/activate
 python3 app.py
 ```
 3. Open `http://localhost:5000`, paste your phone's streaming URL (e.g., `http://192.168.1.100:8080/video`) into the **Camera Source** bar, and click **Connect Camera**.
+
+---
+
+## Project Structure
+
+```
+rehab-motion-evaluator/
+├── app.py                   # Flask app + REST API
+├── config/exercises.json    # Exercise definitions & angle thresholds
+├── src/                     # Core pipeline (camera, pose, angles, tracking, evaluation, storage, AI coach)
+├── web/                     # Dashboard template, CSS, JS (Chart.js bundled for offline use)
+├── scripts/                 # Environment check, camera/pose tests, TensorRT export, Jetson benchmark
+├── tests/                   # pytest unit tests
+├── docs/                    # Learning guide
+├── reports/, research_notes/# Jetson edge-AI deployment research
+├── models/                  # TensorRT engine
+└── setup_jetson.sh          # One-shot Jetson setup
+```
+
+## REST API
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/video_feed` | Annotated MJPEG stream |
+| GET | `/api/telemetry` | Live angles, reps, feedback + Jetson hardware stats |
+| POST | `/api/camera` · `/api/exercise` · `/api/side` · `/api/calibrate` | Configure the live session |
+| POST | `/api/session/start` · `/api/session/stop` | Record a session |
+| GET | `/api/sessions` · `/api/sessions/<id>/frames(.csv)` · `/api/sessions/export.csv` | History & CSV export |
+| GET/POST | `/api/patients` · `/api/patient/select` · `/api/patients/<id>/progress` · `/api/patients/<id>/targets` | Patient profiles & targets |
+| POST | `/api/sessions/<id>/report` · `/api/patients/<id>/ask` | AI session report & physio Q&A |
+| GET | `/api/ai/status` | Whether the Gemini coach is configured |
+
+## Development & Testing
+
+```bash
+pip install -r requirements-dev.txt   # no GPU / ML runtime needed
+ruff check .
+pytest
+```
+
+CI runs lint and tests on Python 3.10 and 3.12 for every push and pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and [SECURITY.md](SECURITY.md) for the security & patient-data policy.
+
+## License
+
+Released under the [MIT License](LICENSE). Pose models are from [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics) (AGPL-3.0) and [MediaPipe](https://github.com/google-ai-edge/mediapipe) (Apache-2.0); check their licenses before commercial use.
