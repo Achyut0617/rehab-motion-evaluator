@@ -1,0 +1,37 @@
+[project]
+name = "rehab-motion-evaluator"
+version = "1.0.0"
+description = "Edge-AI physiotherapy exercise monitoring with real-time pose estimation on NVIDIA Jetson Orin Nano"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "Achyut0617" }]
+keywords = ["pose-estimation", "rehabilitation", "physiotherapy", "jetson", "edge-ai", "mediapipe", "yolov8", "tensorrt"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+[project.urls]
+Repository = "https://github.com/Achyut0617/rehab-motion-evaluator"
+Issues = "https://github.com/Achyut0617/rehab-motion-evaluator/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = [".venv", "venv", "web/static"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Helper scripts add the project root to sys.path before importing src.*
+"scripts/*.py" = ["E402"]
