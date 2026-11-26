@@ -22,3 +22,8 @@ models/*
 
 # Local session data / exports
 data/exports/
+
+# Allow the bundled YOLOv8n-pose weights (note: the .engine only works on the Jetson/TensorRT version it was built on)
+!yolov8n-pose.pt
+!yolov8n-pose.onnx
+!models/yolov8n-pose.engine
